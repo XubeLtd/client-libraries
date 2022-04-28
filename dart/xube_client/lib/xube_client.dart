@@ -1,4 +1,4 @@
-library xube;
+library xube_client;
 
 /// A Calculator.
 class Calculator {
