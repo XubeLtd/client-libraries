@@ -1,0 +1,140 @@
+{
+    "v": "v1",
+    "context": "xube",
+    "type": "list",
+    "permissions": ["edit", "view"],
+    "interactions": ["edit", "view"],
+    "data": {
+      "heading": "connectivity"
+    },
+    "children": [
+      {
+        "context": "xube",
+        "type": "section",
+        "permissions": ["edit", "view"],
+        "interactions": ["edit", "view"],
+        "data": {
+          "name": "summary"
+        },
+        "children": [
+          {
+            "context": "xube",
+            "type": "status",
+            "permissions": ["view"],
+            "interactions": ["view"],
+            "data": {
+              "attribute": "status",
+              "states": [
+                {
+                  "status": "healthy",
+                  "text": "connected"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "context": "xube",
+        "type": "section",
+        "permissions": ["view"],
+        "interactions": ["view"],
+        "data": {
+          "name": "ethernet"
+        },
+        "children": [
+          {
+            "context": "xube",
+            "type": "status",
+            "permissions": ["view"],
+            "interactions": ["view"],
+            "data": {
+              "attribute": "status",
+              "states": [
+                {
+                  "status": "healthy",
+                  "text": "connected"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "context": "xube",
+        "type": "section",
+        "permissions": ["edit", "view"],
+        "interactions": ["edit", "view"],
+        "data": {
+          "name": "WiFi"
+        },
+        "children": [
+          {
+            "context": "xube",
+            "type": "status",
+            "permissions": ["view"],
+            "interactions": ["view"],
+            "data": {
+              "attribute": "status",
+              "states": [
+                {
+                  "status": "error",
+                  "text": "incorrect password"
+                }
+              ]
+            }
+          },
+          {
+            "context": "xube",
+            "type": "status",
+            "permissions": ["view"],
+            "interactions": ["view"],
+            "data": {
+              "attribute": "speed",
+              "states": [
+                {
+                  "status": "healthy",
+                  "text": "fast"
+                }
+              ]
+            }
+          },
+          {
+            "context": "xube",
+            "type": "status",
+            "permissions": ["view"],
+            "interactions": ["view"],
+            "data": {
+              "attribute": "signal strength",
+              "states": [
+                {
+                  "status": "healthy",
+                  "text": "strong"
+                }
+              ]
+            }
+          },
+          {
+            "context": "xube",
+            "type": "field",
+            "permissions": ["view", "edit"],
+            "interactions": ["view", "edit"],
+            "data": {
+              "name": "SSID",
+              "value": "Jez Spot"
+            }
+          },
+          {
+            "context": "xube",
+            "type": "field",
+            "permissions": ["view", "edit"],
+            "interactions": ["view", "edit"],
+            "data": {
+              "name": "Password",
+              "value": "********"
+            }
+          }
+        ]
+      }
+    ]
+  }

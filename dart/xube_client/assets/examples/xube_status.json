@@ -1,0 +1,95 @@
+{
+    "v": "v1",
+    "context": "xube",
+    "type": "section",
+    "permissions": ["view"],
+    "interactions": ["view"],
+    "children": [
+      {
+        "context": "xube",
+        "type": "status",
+        "permissions": ["view"],
+        "interactions": ["view"],
+        "data": {
+          "attribute": "status",
+          "statusCounts": [
+            {
+              "statusOption": "error",
+              "count": 5
+            }
+          ],
+          "statusDetails": {
+            "pins": [
+              {
+                "name": "3",
+                "statuses": [
+                  {
+                    "statusOption": "error",
+                    "statusInfo": "component not correctly connected"
+                  },
+                  {
+                    "statusOption": "error",
+                    "statusInfo": "reporting unexpected state"
+                  }
+                ]
+              },
+              {
+                "name": "9",
+                "statuses": [
+                  {
+                    "statusOption": "error",
+                    "statusInfo": "reporting unexpected state"
+                  }
+                ]
+              }
+            ],
+            "components": [],
+            "connectivity": [
+              {
+                "name": "wifi",
+                "statuses": [
+                  {
+                    "statusOption": "error",
+                    "statusInfo": "Incorrect Password"
+                  }
+                ]
+              }
+            ],
+            "power": [
+              {
+                "name": "solar",
+                "statuses": [
+                  {
+                    "statusOption": "error",
+                    "statusInfo": "Unexpectedly not charging"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+          "context": "xube",
+          "type": "field",
+          "permissions": ["view"],
+          "interactions": ["view"],
+          "data": {
+              "name": "last update",
+              "value": "<ISO 8601 string>",
+              "valueSubject": "in 2 days"
+          }
+      },
+      {
+          "context": "xube",
+          "type": "field",
+          "permissions": ["view"],
+          "interactions": ["view"],
+          "data": {
+              "name": "next update",
+              "value": "<ISO 8601 string>",
+              "valueSubject": "in 2 days"
+          }
+      }
+    ]
+  }
