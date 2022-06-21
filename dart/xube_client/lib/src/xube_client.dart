@@ -1,13 +1,18 @@
 library xube_client;
 
 import 'package:flutter/services.dart';
+import 'package:xube_client/xube_client.dart';
 
 abstract class XubeClient {
   List<Stream> fetchDevicePageStreams(String deviceId);
   List<Stream> fetchComponentPageStreams(String userId);
+  late XubeAuth auth;
 }
 
 class XubeClientImpl implements XubeClient {
+  @override
+  XubeAuth auth = XubeAuth();
+
   @override
   List<Stream> fetchDevicePageStreams(String deviceId) {
     return [
