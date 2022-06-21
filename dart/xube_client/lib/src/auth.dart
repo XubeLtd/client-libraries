@@ -1,7 +1,10 @@
+library xube_client;
+
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'jwt_decoder.dart';
 
 class User {
   final String? userId;
@@ -15,11 +18,11 @@ class User {
   });
 }
 
-class Auth {
-  late String? _token;
-  late DateTime? _expiryDate;
-  late String? _userId;
-  late Timer? _authTimer;
+class XubeAuth {
+  String? _token;
+  DateTime? _expiryDate;
+  String? _userId;
+  Timer? _authTimer;
 
   final _authStreamController = StreamController<User>.broadcast();
 
@@ -39,13 +42,12 @@ class Auth {
 
   String? get userId => _userId;
 
-  Future<void> _authenticate(
+  Future<dynamic> signUp(
     String email,
     String password,
-    String urlSegment,
   ) async {
     final url = Uri.parse(
-        'www.googleapis.com/identitytoolkit/v3/relyingparty/$urlSegment?key=AIzaSyC13spCwP_f_SalxEbkB-wjedoF8iYENlQ');
+        'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/sign-up');
     try {
       final response = await http.post(
         url,
@@ -53,7 +55,6 @@ class Auth {
           {
             'email': email,
             'password': password,
-            'returnSecureToken': true,
           },
         ),
       );
@@ -64,15 +65,38 @@ class Auth {
         throw Exception(responseData['error']['message']);
       }
 
-      _token = responseData['idToken'];
-      _userId = responseData['localId'];
-      _expiryDate = DateTime.now().add(
-        Duration(
-          seconds: int.parse(
-            responseData['expiresIn'],
-          ),
+      return responseData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> logIn(String email, String password) async {
+    final url = Uri.parse(
+        'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/log-in');
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode(
+          {
+            'email': email,
+            'password': password,
+          },
         ),
       );
+
+      final responseData = json.decode(response.body);
+      if (responseData['error'] != null) {
+        throw Exception(responseData['error']['message']);
+      }
+
+      final token = responseData['message']['token'];
+
+      final payload = parseJwtPayLoad(token);
+
+      _token = token;
+      _userId = payload['cognito:username'];
+      _expiryDate = DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
 
       _autoLogout();
       _notifyListeners();
@@ -90,14 +114,6 @@ class Auth {
     } catch (error) {
       rethrow;
     }
-  }
-
-  Future<void> signup(String email, String password) async {
-    return _authenticate(email, password, 'signupNewUser');
-  }
-
-  Future<void> login(String email, String password) async {
-    return _authenticate(email, password, 'verifyPassword');
   }
 
   Future<bool> tryAutoLogin() async {
