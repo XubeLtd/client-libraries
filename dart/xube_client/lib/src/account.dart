@@ -30,8 +30,14 @@ class XubeClientAccount {
     String token,
     String userEmail,
     String accountId,
-    List<String> roles,
+    Map<String, bool> accountRoles,
   ) async {
+    List<String> roles = [];
+
+    accountRoles.forEach((key, value) {
+      if (value) roles.add(key);
+    });
+
     final url = Uri.parse(
         'https://nwopvacn1a.execute-api.eu-west-1.amazonaws.com/prod/account');
 
