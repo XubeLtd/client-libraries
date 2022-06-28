@@ -8,11 +8,13 @@ import 'jwt_decoder.dart';
 
 class User {
   final String? userId;
+  final String? email;
   final String? token;
   final DateTime? expiryDate;
 
   User({
     this.userId,
+    this.email,
     this.token,
     this.expiryDate,
   });
@@ -20,8 +22,9 @@ class User {
 
 class XubeClientAuth {
   String? _token;
-  DateTime? _expiryDate;
+  String? _email;
   String? _userId;
+  DateTime? _expiryDate;
   Timer? _authTimer;
 
   final _authStreamController = StreamController<User>.broadcast();
@@ -39,6 +42,8 @@ class XubeClientAuth {
 
     return null;
   }
+
+  String? get email => _email;
 
   String? get userId => _userId;
 
@@ -95,6 +100,7 @@ class XubeClientAuth {
       final payload = parseJwtPayLoad(token);
 
       _token = token;
+      _email = email;
       _userId = payload['cognito:username'];
       _expiryDate = DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
 
@@ -105,6 +111,7 @@ class XubeClientAuth {
       final userData = json.encode(
         {
           'token': _token,
+          'email': _email,
           'userId': _userId,
           'expiryDate': _expiryDate!.toIso8601String(),
         },
@@ -128,6 +135,7 @@ class XubeClientAuth {
     if (expiryDate.isBefore(DateTime.now())) return false;
 
     _token = extractedUserData['token'];
+    _email = extractedUserData['email'];
     _userId = extractedUserData['userId'];
     _expiryDate = expiryDate;
 
@@ -139,6 +147,7 @@ class XubeClientAuth {
 
   Future<void> logout() async {
     _token = null;
+    _email = null;
     _userId = null;
     _expiryDate = null;
 
@@ -163,6 +172,7 @@ class XubeClientAuth {
       User(
         userId: _userId,
         token: _token,
+        email: _email,
         expiryDate: _expiryDate,
       ),
     );
