@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class XubeClientAccount {
-  Future<void> createAccount(String token, String accountName) async {
+  Future<String> createAccount(String token, String accountName) async {
     final url = Uri.parse(
         'https://nwopvacn1a.execute-api.eu-west-1.amazonaws.com/prod/account');
 
@@ -21,6 +21,8 @@ class XubeClientAccount {
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
       }
+
+      return responseData['message']['id'];
     } catch (e) {
       rethrow;
     }
