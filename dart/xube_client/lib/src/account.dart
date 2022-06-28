@@ -41,7 +41,7 @@ class XubeClientAccount {
     });
 
     final url = Uri.parse(
-        'https://nwopvacn1a.execute-api.eu-west-1.amazonaws.com/prod/account');
+        'https://nwopvacn1a.execute-api.eu-west-1.amazonaws.com/prod/user');
 
     try {
       final response = await http.post(
