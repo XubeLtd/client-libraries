@@ -18,7 +18,7 @@ class User {
   });
 }
 
-class XubeAuth {
+class XubeClientAuth {
   String? _token;
   DateTime? _expiryDate;
   String? _userId;
@@ -62,7 +62,7 @@ class XubeAuth {
       final responseData = json.decode(response.body);
 
       if (responseData['error'] != null) {
-        throw Exception(responseData['error']['message']);
+        throw Exception(responseData['error']);
       }
 
       return responseData;
@@ -87,7 +87,7 @@ class XubeAuth {
 
       final responseData = json.decode(response.body);
       if (responseData['error'] != null) {
-        throw Exception(responseData['error']['message']);
+        throw Exception(responseData['error']);
       }
 
       final token = responseData['message']['token'];

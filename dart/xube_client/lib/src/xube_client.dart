@@ -1,41 +1,28 @@
 library xube_client;
 
-import 'package:flutter/services.dart';
+import 'package:xube_client/src/account.dart';
+import 'package:xube_client/src/component.dart';
+import 'package:xube_client/src/device.dart';
 import 'package:xube_client/xube_client.dart';
 
-abstract class XubeClient {
-  List<Stream> fetchDevicePageStreams(String deviceId);
-  List<Stream> fetchComponentPageStreams(String userId);
-  late XubeAuth auth;
-}
+class XubeClient {
+  final XubeClientAuth _auth;
+  final XubeClientAccount _account;
+  final XubeClientComponent _component;
+  final XubeClientDevice _device;
 
-class XubeClientImpl implements XubeClient {
-  @override
-  XubeAuth auth = XubeAuth();
+  XubeClientAuth get auth => _auth;
+  XubeClientAccount get account => _account;
+  XubeClientComponent get component => _component;
+  XubeClientDevice get device => _device;
 
-  @override
-  List<Stream> fetchDevicePageStreams(String deviceId) {
-    return [
-      Stream.fromFuture(rootBundle.loadString('examples/device/xube_info.json'))
-          .asBroadcastStream(),
-      Stream.fromFuture(
-              rootBundle.loadString('examples/device/xube_endpoint.json'))
-          .asBroadcastStream(),
-      Stream.fromFuture(
-              rootBundle.loadString('examples/device/xube_connectivity.json'))
-          .asBroadcastStream(),
-      Stream.fromFuture(
-              rootBundle.loadString('examples/device/xube_power.json'))
-          .asBroadcastStream(),
-    ];
-  }
-
-  @override
-  List<Stream> fetchComponentPageStreams(String userId) {
-    return [
-      Stream.fromFuture(
-              rootBundle.loadString('examples/components/xube_components.json'))
-          .asBroadcastStream(),
-    ];
-  }
+  XubeClient({
+    XubeClientAuth? auth,
+    XubeClientAccount? account,
+    XubeClientComponent? component,
+    XubeClientDevice? device,
+  })  : _auth = auth ?? XubeClientAuth(),
+        _account = account ?? XubeClientAccount(),
+        _component = component ?? XubeClientComponent(),
+        _device = device ?? XubeClientDevice();
 }
