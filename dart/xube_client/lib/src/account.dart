@@ -12,9 +12,11 @@ class XubeClientAccount {
         headers: {
           'Authorization': token,
         },
-        body: {
-          'name': accountName,
-        },
+        body: json.encode(
+          {
+            'name': accountName,
+          },
+        ),
       );
 
       final responseData = json.decode(response.body);
@@ -49,11 +51,13 @@ class XubeClientAccount {
         headers: {
           'Authorization': token,
         },
-        body: {
-          'email': userEmail,
-          'id': accountId,
-          'roles': roles,
-        },
+        body: json.encode(
+          {
+            'email': userEmail,
+            'id': accountId,
+            'roles': roles,
+          },
+        ),
       );
 
       final responseData = json.decode(response.body);
