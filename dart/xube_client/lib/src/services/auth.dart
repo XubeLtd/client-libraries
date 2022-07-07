@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'jwt_decoder.dart';
+import 'package:xube_client/src/utils/jwt_decoder.dart';
 
 class User {
   final String? userId;

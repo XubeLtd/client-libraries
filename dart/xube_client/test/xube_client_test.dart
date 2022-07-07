@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:xube_client/xube_client.dart';
+import 'package:xube_client/src/services/auth.dart';
 
 void main() async {
   setUp(() {
