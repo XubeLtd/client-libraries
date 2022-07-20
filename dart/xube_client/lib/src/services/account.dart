@@ -2,23 +2,29 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:xube_client/xube_client.dart';
 
 // {“action”: “Subscribe”, “format”: “View”, “contextType”:“ACCOUNT”, “contextID”:“sub account 20", “subscriptionType”: “ACCOUNT”, “subscriptionID”:“sub account 20"}
 
 class XubeClientAccount {
-  late final WebSocketChannel channel;
+  final WebSocketChannel _channel;
+  final XubeClientAuth _auth;
 
-  XubeClientAccount({required this.channel});
+  XubeClientAccount({
+    required WebSocketChannel channel,
+    required XubeClientAuth auth,
+  })  : _channel = channel,
+        _auth = auth;
 
-  Future<String?> createAccount(String token, String accountName) async {
+  Future<String?> createAccount(String accountName) async {
     final url = Uri.parse(
-        'https://nwopvacn1a.execute-api.eu-west-1.amazonaws.com/prod/account');
+        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account');
 
     try {
       final response = await http.post(
         url,
         headers: {
-          'Authorization': token,
+          'Authorization': _auth.token!,
         },
         body: json.encode(
           {
@@ -33,7 +39,7 @@ class XubeClientAccount {
         throw Exception(responseData['error']);
       }
 
-      channel.sink.add(
+      _channel.sink.add(
         json.encode(
           {
             'action': 'Subscribe',
@@ -54,7 +60,6 @@ class XubeClientAccount {
   }
 
   Future<void> addUserToAccount(
-    String token,
     String userEmail,
     String accountId,
     Map<String, bool> accountRoles,
@@ -66,13 +71,13 @@ class XubeClientAccount {
     });
 
     final url = Uri.parse(
-        'https://nwopvacn1a.execute-api.eu-west-1.amazonaws.com/prod/user');
+        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account/user');
 
     try {
       final response = await http.post(
         url,
         headers: {
-          'Authorization': token,
+          'Authorization': _auth.token!,
         },
         body: json.encode(
           {
