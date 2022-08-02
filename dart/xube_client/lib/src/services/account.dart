@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:xube_client/src/utils/subcscription_manager.dart';
 import 'package:xube_client/xube_client.dart';
 
 // {“action”: “Subscribe”, “format”: “View”, “contextType”:“ACCOUNT”, “contextID”:“sub account 20", “subscriptionType”: “ACCOUNT”, “subscriptionID”:“sub account 20"}
@@ -9,12 +10,20 @@ import 'package:xube_client/xube_client.dart';
 class XubeClientAccount {
   final WebSocketChannel _channel;
   final XubeClientAuth _auth;
+  final SubscriptionManager _subscriptionManager;
 
   XubeClientAccount({
     required WebSocketChannel channel,
     required XubeClientAuth auth,
+    SubscriptionManager? subscriptionManager,
   })  : _channel = channel,
-        _auth = auth;
+        _auth = auth,
+        _subscriptionManager =
+            subscriptionManager ?? SubscriptionManager.instance;
+
+  Stream? getAccountStream(String accountId) {
+    return _subscriptionManager.findStreamById(accountId);
+  }
 
   Future<String?> createAccount(String accountName) async {
     final url = Uri.parse(
@@ -51,6 +60,8 @@ class XubeClientAccount {
           },
         ),
       );
+
+      _subscriptionManager.createSubscription(accountName);
 
       log('createAccount responseData: $responseData');
       return responseData['message']?['id'];
