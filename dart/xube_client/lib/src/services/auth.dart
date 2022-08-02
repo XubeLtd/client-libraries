@@ -2,7 +2,7 @@ library xube_client;
 
 import 'dart:convert';
 import 'dart:async';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xube_client/src/utils/jwt_decoder.dart';
 
@@ -47,16 +47,18 @@ class XubeClientAuth {
 
   String? get userId => _userId;
 
+  final dio = Dio();
+
   Future<dynamic> signUp(
     String email,
     String password,
   ) async {
-    final url = Uri.parse(
-        'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/sign-up');
+    const url =
+        'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/sign-up';
     try {
-      final response = await http.post(
+      final response = await dio.post(
         url,
-        body: json.encode(
+        data: json.encode(
           {
             'email': email,
             'password': password,
@@ -64,7 +66,7 @@ class XubeClientAuth {
         ),
       );
 
-      final responseData = json.decode(response.body);
+      final responseData = json.decode(response.data);
 
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
@@ -77,12 +79,12 @@ class XubeClientAuth {
   }
 
   Future<void> logIn(String email, String password) async {
-    final url = Uri.parse(
-        'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/log-in');
+    const url =
+        'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/log-in';
     try {
-      final response = await http.post(
+      final response = await dio.post(
         url,
-        body: json.encode(
+        data: json.encode(
           {
             'email': email,
             'password': password,
@@ -90,7 +92,7 @@ class XubeClientAuth {
         ),
       );
 
-      final responseData = json.decode(response.body);
+      final responseData = json.decode(response.data);
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
       }

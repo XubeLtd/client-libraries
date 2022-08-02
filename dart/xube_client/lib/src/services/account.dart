@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/utils/subcscription_manager.dart';
 import 'package:xube_client/xube_client.dart';
-
-// {“action”: “Subscribe”, “format”: “View”, “contextType”:“ACCOUNT”, “contextID”:“sub account 20", “subscriptionType”: “ACCOUNT”, “subscriptionID”:“sub account 20"}
 
 class XubeClientAccount {
   final WebSocketChannel _channel;
@@ -21,28 +19,32 @@ class XubeClientAccount {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
+  final dio = Dio();
+
   Stream? getAccountStream(String accountId) {
     return _subscriptionManager.findStreamById(accountId);
   }
 
   Future<String?> createAccount(String accountName) async {
-    final url = Uri.parse(
-        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account');
+    const url =
+        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account';
 
     try {
-      final response = await http.post(
+      final response = await dio.post(
         url,
-        headers: {
-          'Authorization': _auth.token!,
-        },
-        body: json.encode(
+        options: Options(
+          headers: {
+            'Authorization': _auth.token!,
+          },
+        ),
+        data: json.encode(
           {
             'name': accountName,
           },
         ),
       );
 
-      final responseData = json.decode(response.body);
+      final responseData = json.decode(response.data);
 
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
@@ -81,16 +83,18 @@ class XubeClientAccount {
       if (value) roles.add(key);
     });
 
-    final url = Uri.parse(
-        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account/user');
+    const url =
+        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account/user';
 
     try {
-      final response = await http.post(
+      final response = await dio.post(
         url,
-        headers: {
-          'Authorization': _auth.token!,
-        },
-        body: json.encode(
+        options: Options(
+          headers: {
+            'Authorization': _auth.token!,
+          },
+        ),
+        data: json.encode(
           {
             'email': userEmail,
             'id': accountId,
@@ -99,7 +103,8 @@ class XubeClientAccount {
         ),
       );
 
-      final responseData = json.decode(response.body);
+      final responseData = json.decode(response.data);
+
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
       }
