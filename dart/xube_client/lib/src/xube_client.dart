@@ -49,7 +49,13 @@ class XubeClient {
 
     _channel.stream.listen((event) {
       final data = jsonDecode(event);
-      SubscriptionManager.instance.feed(data['subscriptionID'], data);
+      if (data == null) return;
+
+      final subscription = data['subscription'];
+
+      if (subscription == null) return;
+
+      SubscriptionManager.instance.feed(subscription['subscriptionID'], data);
     });
   }
 

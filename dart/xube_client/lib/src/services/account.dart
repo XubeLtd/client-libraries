@@ -25,6 +25,32 @@ class XubeClientAccount {
     return _subscriptionManager.findStreamById(accountId);
   }
 
+  Stream? getUserAccountsStream() {
+    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
+      return null;
+    }
+
+    var stream = _subscriptionManager.findStreamById(_auth.email!);
+    if (stream != null) return stream;
+
+    log('getUserAccountsStream: subscribing to play@xube.io');
+    _channel.sink.add(
+      json.encode({
+        "action": "Subscribe",
+        "format": "View",
+        "contextType": "ACCOUNT",
+        "subscriptionType": "USER",
+        "subscriptionID": _auth.email,
+      }),
+    );
+
+    _subscriptionManager.createSubscription(_auth.email!);
+    stream = _subscriptionManager.findStreamById(_auth.email!);
+
+    log('getUserAccountsStream: $stream');
+    return stream;
+  }
+
   Future<String?> createAccount(String accountName) async {
     const url =
         'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account';
@@ -44,7 +70,7 @@ class XubeClientAccount {
         ),
       );
 
-      final responseData = json.decode(response.data);
+      final responseData = response.data;
 
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
@@ -103,7 +129,7 @@ class XubeClientAccount {
         ),
       );
 
-      final responseData = json.decode(response.data);
+      final responseData = response.data;
 
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
