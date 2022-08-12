@@ -92,7 +92,8 @@ class XubeClientAuth {
         ),
       );
 
-      final responseData = json.decode(response.data);
+      final responseData = response.data;
+
       if (responseData['error'] != null) {
         throw Exception(responseData['error']);
       }
