@@ -5,15 +5,15 @@ import 'package:rxdart/subjects.dart';
 
 class XubeSubscription {
   final String id;
-  final controller = BehaviorSubject();
+  final _controller = BehaviorSubject();
 
   XubeSubscription({required this.id});
 
-  Stream get stream => controller.stream;
+  Stream get stream => _controller.stream;
 
   void addData(dynamic data) {
-    log('Adding data: $data to XubeSubscription $id');
-    controller.add(data);
+    // log('Adding data: $data to XubeSubscription $id');
+    _controller.add(data);
   }
 }
 
