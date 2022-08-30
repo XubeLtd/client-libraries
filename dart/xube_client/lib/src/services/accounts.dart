@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/utils/subcscription_manager.dart';
+import 'package:xube_client/src/utils/submit.dart';
 import 'package:xube_client/xube_client.dart';
 
 class XubeClientAccounts {
@@ -52,25 +53,13 @@ class XubeClientAccounts {
         'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account';
 
     try {
-      final response = await dio.post(
-        url,
-        options: Options(
-          headers: {
-            'Authorization': _auth.token!,
-          },
-        ),
-        data: json.encode(
-          {
-            'name': accountName,
-          },
-        ),
+      final responseData = await submit(
+        data: {
+          'name': accountName,
+        },
+        url: url,
+        authToken: _auth.token!,
       );
-
-      final responseData = response.data;
-
-      if (responseData['error'] != null) {
-        throw Exception(responseData['error']);
-      }
 
       _channel.sink.add(
         json.encode(
@@ -107,30 +96,19 @@ class XubeClientAccounts {
 
     const url =
         'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account/user';
-
     try {
-      final response = await dio.post(
-        url,
-        options: Options(
-          headers: {
-            'Authorization': _auth.token!,
-          },
-        ),
-        data: json.encode(
-          {
-            'email': userEmail,
-            'id': accountId,
-            'roles': roles,
-          },
-        ),
+      final responseData = await submit(
+        data: {
+          'email': userEmail,
+          'id': accountId,
+          'roles': roles,
+        },
+        url: url,
+        authToken: _auth.token!,
       );
 
-      final responseData = response.data;
-
-      if (responseData['error'] != null) {
-        throw Exception(responseData['error']);
-      }
-    } catch (e) {
+      log('addUserToAccount responseData: $responseData');
+    } catch (error) {
       rethrow;
     }
   }

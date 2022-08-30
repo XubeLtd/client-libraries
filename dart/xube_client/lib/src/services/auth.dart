@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xube_client/src/utils/jwt_decoder.dart';
+import 'package:xube_client/src/utils/submit.dart';
 
 class User {
   final String? userId;
@@ -56,21 +57,13 @@ class XubeClientAuth {
     const url =
         'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/sign-up';
     try {
-      final response = await dio.post(
-        url,
-        data: json.encode(
-          {
-            'email': email,
-            'password': password,
-          },
-        ),
+      final responseData = await submit(
+        data: {
+          'email': email,
+          'password': password,
+        },
+        url: url,
       );
-
-      final responseData = response.data;
-
-      if (responseData['error'] != null) {
-        throw Exception(responseData['error']);
-      }
 
       return responseData;
     } catch (error) {
@@ -82,21 +75,13 @@ class XubeClientAuth {
     const url =
         'https://tcayebnb36.execute-api.eu-west-1.amazonaws.com/prod/user/log-in';
     try {
-      final response = await dio.post(
-        url,
-        data: json.encode(
-          {
-            'email': email,
-            'password': password,
-          },
-        ),
+      final responseData = await submit(
+        data: {
+          'email': email,
+          'password': password,
+        },
+        url: url,
       );
-
-      final responseData = response.data;
-
-      if (responseData['error'] != null) {
-        throw Exception(responseData['error']);
-      }
 
       final token = responseData['message']['token'];
 
