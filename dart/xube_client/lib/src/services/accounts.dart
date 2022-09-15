@@ -27,30 +27,47 @@ class XubeClientAccounts {
       return null;
     }
 
-    var stream = _subscriptionManager.findStreamById(_auth.email!);
-    if (stream != null) return stream;
-
-    log('getUserAccountsStream: subscribing to play@xube.io');
-    _channel.sink.add(
-      json.encode({
-        "action": "Subscribe",
-        "format": "View",
-        "contextType": "ACCOUNT",
-        "subscriptionType": "USER",
-        "subscriptionID": _auth.email,
-      }),
+    var stream = _subscriptionManager.findStreamById(
+      format: "View",
+      contextKey: "ACCOUNT",
+      typeKey: "USER",
+      typeId: _auth.email!,
     );
 
-    _subscriptionManager.createSubscription(_auth.email!);
-    stream = _subscriptionManager.findStreamById(_auth.email!);
+    if (stream != null) return stream;
+
+    _channel.sink.add(
+      json.encode(
+        {
+          "action": "Subscribe",
+          "format": "View",
+          "contextKey": "ACCOUNT",
+          "typeKey": "USER",
+          "typeId": _auth.email,
+        },
+      ),
+    );
+
+    _subscriptionManager.createSubscription(
+      format: "View",
+      contextKey: "ACCOUNT",
+      typeKey: "USER",
+      typeId: _auth.email!,
+    );
+
+    stream = _subscriptionManager.findStreamById(
+      format: "View",
+      contextKey: "ACCOUNT",
+      typeKey: "USER",
+      typeId: _auth.email!,
+    );
 
     log('getUserAccountsStream: $stream');
     return stream;
   }
 
   Future<String?> createAccount(String accountName) async {
-    const url =
-        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account';
+    const url = 'https://dev.api.xube.io/account';
 
     try {
       final responseData = await submit(
@@ -66,15 +83,19 @@ class XubeClientAccounts {
           {
             'action': 'Subscribe',
             'format': 'View',
-            'contextType': 'ACCOUNT',
-            'contextID': accountName,
-            'subscriptionType': 'ACCOUNT',
-            'subscriptionID': accountName,
+            'contextKey': 'ACCOUNT',
+            'typeKey': 'ACCOUNT',
+            'typeId': accountName,
           },
         ),
       );
 
-      _subscriptionManager.createSubscription(accountName);
+      _subscriptionManager.createSubscription(
+        format: 'View',
+        contextKey: 'ACCOUNT',
+        typeKey: 'ACCOUNT',
+        typeId: accountName,
+      );
 
       log('createAccount responseData: $responseData');
       return responseData['message']?['id'];
@@ -94,14 +115,16 @@ class XubeClientAccounts {
       if (value) roles.add(key);
     });
 
-    const url =
-        'https://198lxm6kmg.execute-api.eu-west-1.amazonaws.com/prod/account/user';
+    log('here ${_auth.token!}');
+
+    const url = 'https://dev.api.xube.io/account/user';
     try {
       final responseData = await submit(
         data: {
           'email': userEmail,
           'id': accountId,
           'roles': roles,
+          'account': accountId,
         },
         url: url,
         authToken: _auth.token!,

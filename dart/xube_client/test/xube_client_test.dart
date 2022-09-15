@@ -50,10 +50,10 @@ void main() async {
         {
           'action': 'Subscribe',
           'format': 'View',
-          'contextType': 'ACCOUNT',
+          'contextKey': 'ACCOUNT',
           'contextID': 'sub account 20',
-          'subscriptionType': 'ACCOUNT',
-          'subscriptionID': 'sub account 20',
+          'typeKey': 'ACCOUNT',
+          'typeId': 'sub account 20',
         },
       ),
     );

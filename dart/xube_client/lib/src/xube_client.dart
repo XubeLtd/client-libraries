@@ -50,37 +50,65 @@ class XubeClient {
     XubeClientComponent? component,
   }) {
     log('Init Xube Client');
-    _initSocket(channel);
 
     _auth = auth ?? XubeClientAuth();
-    _accounts = accounts ?? XubeClientAccounts(channel: _channel, auth: _auth);
-    _account = account ?? XubeClientAccount(channel: _channel, auth: _auth);
-    _projects = projects ?? XubeClientProjects(channel: _channel, auth: _auth);
-    _project = project ?? XubeClientProject(channel: _channel, auth: _auth);
-    _device = device ?? XubeClientDevice(channel: _channel, auth: _auth);
-    _component =
-        component ?? XubeClientComponent(channel: _channel, auth: _auth);
+
+    _auth.authStream.listen((event) {
+      if (event.token == null) return;
+
+      _initSocket(channel, event.token!);
+
+      _accounts =
+          accounts ?? XubeClientAccounts(channel: _channel, auth: _auth);
+      _account = account ?? XubeClientAccount(channel: _channel, auth: _auth);
+      _projects =
+          projects ?? XubeClientProjects(channel: _channel, auth: _auth);
+      _project = project ?? XubeClientProject(channel: _channel, auth: _auth);
+      _device = device ?? XubeClientDevice(channel: _channel, auth: _auth);
+      _component =
+          component ?? XubeClientComponent(channel: _channel, auth: _auth);
+    });
   }
 
-  _initSocket(WebSocketChannel? channel) {
+  _initSocket(WebSocketChannel? channel, String authToken) {
+    log('initSocket $authToken');
+
     _channel = channel ??
         WebSocketChannel.connect(
-          Uri.parse('wss://wpc1qzf6mk.execute-api.eu-west-1.amazonaws.com/dev'),
+          Uri.parse(
+              'wss://05oqqk91oa.execute-api.eu-west-1.amazonaws.com/dev?token=$authToken'),
         );
 
     _channel.stream.listen((event) {
       final data = jsonDecode(event);
+
       if (data == null) return;
 
       final subscription = data['subscription'];
 
       if (subscription == null) return;
 
-      SubscriptionManager.instance.feed(subscription['subscriptionID'], data);
+      SubscriptionManager.instance.feed(
+        format: subscription['format'],
+        contextKey: subscription['contextKey'],
+        typeKey: subscription['typeKey'],
+        typeId: subscription['typeId'],
+        data: data,
+      );
     });
   }
 
-  Stream? findStreamById(String id) {
-    return SubscriptionManager.instance.findStreamById(id);
+  Stream? findStreamById({
+    required String format,
+    required String contextKey,
+    required String typeKey,
+    required String typeId,
+  }) {
+    return SubscriptionManager.instance.findStreamById(
+      format: format,
+      contextKey: contextKey,
+      typeKey: typeKey,
+      typeId: typeId,
+    );
   }
 }
