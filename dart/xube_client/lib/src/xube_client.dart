@@ -7,6 +7,7 @@ import 'dart:developer';
 
 // 3rd-Party Packages
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:xube_client/src/services/components.dart';
 
 // Utilities
 import 'package:xube_client/src/utils/subcscription_manager.dart';
@@ -30,6 +31,7 @@ class XubeClient {
   late final XubeClientProject _project;
   late final XubeClientDevice _device;
   late final XubeClientComponent _component;
+  late final XubeClientComponents _components;
 
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
@@ -38,6 +40,7 @@ class XubeClient {
   XubeClientProject get project => _project;
   XubeClientDevice get device => _device;
   XubeClientComponent get component => _component;
+  XubeClientComponents get components => _components;
 
   XubeClient({
     WebSocketChannel? channel,
@@ -48,6 +51,7 @@ class XubeClient {
     XubeClientProject? project,
     XubeClientDevice? device,
     XubeClientComponent? component,
+    XubeClientComponents? components,
   }) {
     log('Init Xube Client');
 
@@ -67,6 +71,8 @@ class XubeClient {
       _device = device ?? XubeClientDevice(channel: _channel, auth: _auth);
       _component =
           component ?? XubeClientComponent(channel: _channel, auth: _auth);
+      _components =
+          components ?? XubeClientComponents(channel: _channel, auth: _auth);
     });
   }
 

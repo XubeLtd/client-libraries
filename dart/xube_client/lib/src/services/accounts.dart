@@ -103,36 +103,4 @@ class XubeClientAccounts {
       rethrow;
     }
   }
-
-  Future<void> addUserToAccount(
-    String userEmail,
-    String accountId,
-    Map<String, bool> accountRoles,
-  ) async {
-    List<String> roles = [];
-
-    accountRoles.forEach((key, value) {
-      if (value) roles.add(key);
-    });
-
-    log('here ${_auth.token!}');
-
-    const url = 'https://dev.api.xube.io/account/user';
-    try {
-      final responseData = await submit(
-        data: {
-          'email': userEmail,
-          'id': accountId,
-          'roles': roles,
-          'account': accountId,
-        },
-        url: url,
-        authToken: _auth.token!,
-      );
-
-      log('addUserToAccount responseData: $responseData');
-    } catch (error) {
-      rethrow;
-    }
-  }
 }
