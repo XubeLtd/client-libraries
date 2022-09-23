@@ -27,8 +27,15 @@ class SubscriptionManager {
     required String contextKey,
     required String typeKey,
     required String typeId,
-  }) =>
-      '$format#$contextKey#$typeKey#$typeId';
+    String contextId = '',
+  }) {
+    String id = '$format#$contextKey#$typeKey#$typeId';
+    if (contextId.isNotEmpty) {
+      id += '#$contextId';
+    }
+
+    return id;
+  }
 
   SubscriptionManager._internal() {
     _subscriptions = {};
@@ -39,12 +46,14 @@ class SubscriptionManager {
     required String contextKey,
     required String typeKey,
     required String typeId,
+    String contextId = '',
   }) {
     final id = _formatId(
       format: format,
       contextKey: contextKey,
       typeKey: typeKey,
       typeId: typeId,
+      contextId: contextId,
     );
 
     return _subscriptions[id]?.stream;
@@ -55,6 +64,7 @@ class SubscriptionManager {
     required String contextKey,
     required String typeKey,
     required String typeId,
+    String contextId = '',
     dynamic data,
   }) {
     final id = _formatId(
@@ -62,6 +72,7 @@ class SubscriptionManager {
       contextKey: contextKey,
       typeKey: typeKey,
       typeId: typeId,
+      contextId: contextId,
     );
 
     _subscriptions[id]?.addData(data);
@@ -72,12 +83,14 @@ class SubscriptionManager {
     required String contextKey,
     required String typeKey,
     required String typeId,
+    String contextId = '',
   }) {
     final id = _formatId(
       format: format,
       contextKey: contextKey,
       typeKey: typeKey,
       typeId: typeId,
+      contextId: contextId,
     );
 
     log('Adding new XubeSubscription $id to the Subscription Manager');

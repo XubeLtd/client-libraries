@@ -18,7 +18,7 @@ class XubeClientProject {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
-  Stream? getProjectStream(String projectId) {
+  Stream? getProjectStream(String accountId, String projectId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
@@ -26,8 +26,9 @@ class XubeClientProject {
     var stream = _subscriptionManager.findStreamById(
       format: "View",
       contextKey: "PROJECT",
+      contextId: projectId,
       typeKey: "ACCOUNT",
-      typeId: projectId,
+      typeId: accountId,
     );
 
     if (stream != null) return stream;
@@ -38,23 +39,26 @@ class XubeClientProject {
         "action": "Subscribe",
         "format": "View",
         "contextKey": "PROJECT",
+        "contextId": projectId,
         "typeKey": "ACCOUNT",
-        "typeId": projectId,
+        "typeId": accountId,
       }),
     );
 
     _subscriptionManager.createSubscription(
       format: "View",
       contextKey: "PROJECT",
+      contextId: projectId,
       typeKey: "ACCOUNT",
-      typeId: projectId,
+      typeId: accountId,
     );
 
     stream = _subscriptionManager.findStreamById(
       format: "View",
       contextKey: "PROJECT",
+      contextId: projectId,
       typeKey: "ACCOUNT",
-      typeId: projectId,
+      typeId: accountId,
     );
 
     log('getProjectStream: $stream');

@@ -8,6 +8,7 @@ import 'dart:developer';
 // 3rd-Party Packages
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/services/components.dart';
+import 'package:xube_client/src/services/devices.dart';
 
 // Utilities
 import 'package:xube_client/src/utils/subcscription_manager.dart';
@@ -30,6 +31,7 @@ class XubeClient {
   late final XubeClientProjects _projects;
   late final XubeClientProject _project;
   late final XubeClientDevice _device;
+  late final XubeClientDevices _devices;
   late final XubeClientComponent _component;
   late final XubeClientComponents _components;
 
@@ -39,6 +41,7 @@ class XubeClient {
   XubeClientProjects get projects => _projects;
   XubeClientProject get project => _project;
   XubeClientDevice get device => _device;
+  XubeClientDevices get devices => _devices;
   XubeClientComponent get component => _component;
   XubeClientComponents get components => _components;
 
@@ -50,6 +53,7 @@ class XubeClient {
     XubeClientProjects? projects,
     XubeClientProject? project,
     XubeClientDevice? device,
+    XubeClientDevices? devices,
     XubeClientComponent? component,
     XubeClientComponents? components,
   }) {
@@ -58,6 +62,7 @@ class XubeClient {
     _auth = auth ?? XubeClientAuth();
 
     _auth.authStream.listen((event) {
+      log('debug ${event.token}');
       if (event.token == null) return;
 
       _initSocket(channel, event.token!);
@@ -69,6 +74,7 @@ class XubeClient {
           projects ?? XubeClientProjects(channel: _channel, auth: _auth);
       _project = project ?? XubeClientProject(channel: _channel, auth: _auth);
       _device = device ?? XubeClientDevice(channel: _channel, auth: _auth);
+      _devices = devices ?? XubeClientDevices(channel: _channel, auth: _auth);
       _component =
           component ?? XubeClientComponent(channel: _channel, auth: _auth);
       _components =
@@ -99,6 +105,7 @@ class XubeClient {
         contextKey: subscription['contextKey'],
         typeKey: subscription['typeKey'],
         typeId: subscription['typeId'],
+        contextId: subscription['contextId'] ?? '',
         data: data,
       );
     });

@@ -31,18 +31,21 @@ class XubeClientComponents {
     const url = 'https://dev.api.xube.io/component/account';
     try {
       log('debug $accountId');
+      log('debug ${_auth.token}');
       final responseData = await submit(
         data: {'account': accountId},
         url: url,
         authToken: _auth.token,
+        method: HttpMethod.get,
       );
 
       log('responseData: $responseData');
 
-      final List<Map<String, dynamic>> rawComponents =
-          responseData['message'] ?? [];
+      final List<dynamic> rawComponents = responseData['message'] ?? [];
 
-      components = rawComponents.map((e) => Component.fromJson(e)).toList();
+      components = rawComponents
+          .map((e) => Component.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       return components;
     } catch (error) {
