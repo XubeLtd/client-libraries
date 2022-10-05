@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -51,5 +52,48 @@ class XubeClientComponents {
     } catch (error) {
       rethrow;
     }
+  }
+
+  Stream? getDeviceComponentsStream(String deviceId) {
+    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
+      return null;
+    }
+
+    var stream = _subscriptionManager.findStreamById(
+      format: "View",
+      contextKey: "COMPONENT",
+      typeKey: "DEVICE",
+      typeId: deviceId,
+    );
+
+    if (stream != null) return stream;
+
+    log('getDeviceStream: subscribing to $deviceId');
+    _channel.sink.add(
+      json.encode({
+        "action": "Subscribe",
+        "format": "View",
+        "contextKey": "COMPONENT",
+        "typeKey": "DEVICE",
+        "typeId": deviceId,
+      }),
+    );
+
+    _subscriptionManager.createSubscription(
+      format: "View",
+      contextKey: "COMPONENT",
+      typeKey: "DEVICE",
+      typeId: deviceId,
+    );
+
+    stream = _subscriptionManager.findStreamById(
+      format: "View",
+      contextKey: "COMPONENT",
+      typeKey: "DEVICE",
+      typeId: deviceId,
+    );
+
+    log('getDeviceComponentsStream: $stream');
+    return stream;
   }
 }
