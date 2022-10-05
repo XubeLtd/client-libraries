@@ -17,8 +17,7 @@ class XubeClientDevices {
         _auth = auth,
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
-
-  Stream? getAccountDevicesStream(String accountId) {
+  Stream? getProjectDevicesStream(String projectId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
@@ -26,8 +25,8 @@ class XubeClientDevices {
     var stream = _subscriptionManager.findStreamById(
       format: "View",
       contextKey: "DEVICE",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
+      typeKey: "PROJECT",
+      typeId: projectId,
     );
 
     if (stream != null) return stream;
@@ -38,8 +37,8 @@ class XubeClientDevices {
           "action": "Subscribe",
           "format": "View",
           "contextKey": "DEVICE",
-          "typeKey": "ACCOUNT",
-          "typeId": accountId,
+          "typeKey": "PROJECT",
+          "typeId": projectId,
         },
       ),
     );
@@ -47,18 +46,18 @@ class XubeClientDevices {
     _subscriptionManager.createSubscription(
       format: "View",
       contextKey: "DEVICE",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
+      typeKey: "PROJECT",
+      typeId: projectId,
     );
 
     stream = _subscriptionManager.findStreamById(
       format: "View",
       contextKey: "DEVICE",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
+      typeKey: "PROJECT",
+      typeId: projectId,
     );
 
-    log('getAccountDevicesStream: $stream');
+    log('getProjectDevicesStream: $stream');
     return stream;
   }
 }
