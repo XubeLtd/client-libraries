@@ -18,7 +18,7 @@ class XubeClientComponent {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
-  Stream? getComponentStream(String deviceId, String componentId) {
+  Stream? getDeviceComponentStream(String deviceId, String componentId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
@@ -62,7 +62,7 @@ class XubeClientComponent {
       typeId: deviceId,
     );
 
-    log('getProjectsStream: $stream');
+    log('getDeviceComponentStream: $stream');
     return stream;
   }
 }
