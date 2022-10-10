@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/utils/subcscription_manager.dart';
-import 'package:xube_client/src/utils/submit.dart';
 import 'package:xube_client/xube_client.dart';
 
 class XubeClientComponents {
@@ -29,7 +28,7 @@ class XubeClientComponents {
       return components;
     }
 
-    const url = 'https://dev.api.xube.io/component/account';
+    const url = '/component/account';
     try {
       log('debug $accountId');
       log('debug ${_auth.token}');
@@ -37,7 +36,7 @@ class XubeClientComponents {
         data: {'account': accountId},
         url: url,
         authToken: _auth.token,
-        method: HttpMethod.get,
+        method: 'get',
       );
 
       log('responseData: $responseData');

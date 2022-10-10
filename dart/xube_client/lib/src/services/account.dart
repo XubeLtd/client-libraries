@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/utils/subcscription_manager.dart';
-import 'package:xube_client/src/utils/submit.dart';
 import 'package:xube_client/xube_client.dart';
 import 'dart:convert';
 
@@ -33,7 +32,6 @@ class XubeClientAccount {
 
     if (stream != null) return stream;
 
-    log('getUserAccountsStream: subscribing to play@xube.io');
     _channel.sink.add(
       json.encode({
         "action": "Subscribe",
@@ -75,7 +73,7 @@ class XubeClientAccount {
 
     log('here ${_auth.token!}');
 
-    const url = 'https://dev.api.xube.io/account/user';
+    const url = '/account/user';
     try {
       final responseData = await submit(
         data: {

@@ -1,20 +1,16 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 
-enum HttpMethod {
-  post,
-  get,
-  put,
-}
-
 Future<dynamic> submit({
   required Map<String, dynamic> data,
   required String url,
   String? authToken,
-  HttpMethod method = HttpMethod.post,
+  String method = 'post',
 }) async {
+  final tempUrl = 'https://dev.api.xube.io$url';
+
   try {
-    Response<dynamic> response;
+    Response<dynamic>? response;
 
     final options = authToken != null
         ? Options(
@@ -26,29 +22,31 @@ Future<dynamic> submit({
 
     final encodedData = json.encode(data);
 
-    switch (method) {
-      case HttpMethod.get:
+    switch (method.toLowerCase()) {
+      case 'get':
         response = await Dio().get(
-          url,
+          tempUrl,
           options: options,
           queryParameters: data,
         );
         break;
-      case HttpMethod.post:
+      case 'post':
         response = await Dio().post(
-          url,
+          tempUrl,
           options: options,
           data: encodedData,
         );
         break;
-      case HttpMethod.put:
+      case 'put':
         response = await Dio().put(
-          url,
+          tempUrl,
           options: options,
           data: encodedData,
         );
         break;
     }
+
+    if (response == null) return;
 
     final responseData = response.data;
 

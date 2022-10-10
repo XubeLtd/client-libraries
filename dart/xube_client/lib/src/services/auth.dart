@@ -54,7 +54,7 @@ class XubeClientAuth {
     String email,
     String password,
   ) async {
-    const url = 'https://dev.api.xube.io/user/sign-up';
+    const url = '/user/sign-up';
     try {
       final responseData = await submit(
         data: {
@@ -71,7 +71,7 @@ class XubeClientAuth {
   }
 
   Future<void> logIn(String email, String password) async {
-    const url = 'https://dev.api.xube.io/user/log-in';
+    const url = '/user/log-in';
     try {
       final responseData = await submit(
         data: {
