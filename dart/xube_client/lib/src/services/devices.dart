@@ -17,6 +17,7 @@ class XubeClientDevices {
         _auth = auth,
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
+
   Stream? getProjectDevicesStream(String projectId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
@@ -59,5 +60,60 @@ class XubeClientDevices {
 
     log('getProjectDevicesStream: $stream');
     return stream;
+  }
+
+  Future<void> linkDeviceToProject({
+    required List<String> deviceIds,
+    required String projectId,
+  }) async {
+    const url = '/devices/project';
+
+    try {
+      final data = {
+        'deviceID': deviceIds,
+        'projectID': projectId,
+      };
+
+      await submit(
+        data: data,
+        url: url,
+        authToken: _auth.token,
+        method: 'put',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Device>> getAccountDevices(String accountId) async {
+    List<Device> devices = [];
+
+    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
+      return devices;
+    }
+
+    const url = '/devices/account';
+
+    try {
+      final responseData = await submit(
+        data: {'account': accountId, 'format': 'Raw'},
+        url: url,
+        authToken: _auth.token,
+        method: 'get',
+      );
+
+      log('responseData: $responseData');
+
+      final List<dynamic> rawDevices =
+          responseData['message']['accountDevices'] ?? [];
+
+      devices = rawDevices
+          .map((e) => Device.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      return devices;
+    } catch (error) {
+      rethrow;
+    }
   }
 }

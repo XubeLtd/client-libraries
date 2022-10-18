@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:xube_client/src/models/location.dart';
 import 'package:xube_client/src/utils/subcscription_manager.dart';
 import 'package:xube_client/xube_client.dart';
 
@@ -19,13 +18,12 @@ class XubeClientProjects {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
-  Future<void> createProject(
-    String accountId,
-    String endpointURL,
-    String name,
-    String stage,
-    Location? location,
-  ) async {
+  Future<void> createProject({
+    required String accountId,
+    required String endpointURL,
+    required String name,
+    required String stage,
+  }) async {
     // {
     //   "account": "Gabor's rhino walkers",
     //   "endpoint": "endpointURL",
@@ -52,7 +50,6 @@ class XubeClientProjects {
         'endpoint': endpointURL,
         'name': name,
         'stage': stage,
-        'location': location?.toJson(),
       };
 
       await submit(

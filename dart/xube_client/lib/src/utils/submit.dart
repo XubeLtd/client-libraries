@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:dio/dio.dart';
 
 Future<dynamic> submit({
@@ -56,6 +57,7 @@ Future<dynamic> submit({
 
     return responseData;
   } catch (e) {
+    log(e.toString());
     rethrow;
   }
 }

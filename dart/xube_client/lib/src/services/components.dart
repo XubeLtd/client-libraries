@@ -21,7 +21,7 @@ class XubeClientComponents {
 
   final dio = Dio();
 
-  Future<List<Component>> getComponents(String accountId) async {
+  Future<List<Component>> getAccountComponents(String accountId) async {
     List<Component> components = [];
 
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
@@ -30,8 +30,6 @@ class XubeClientComponents {
 
     const url = '/component/account';
     try {
-      log('debug $accountId');
-      log('debug ${_auth.token}');
       final responseData = await submit(
         data: {'account': accountId},
         url: url,
