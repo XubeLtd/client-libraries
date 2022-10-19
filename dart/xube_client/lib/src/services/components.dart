@@ -93,4 +93,31 @@ class XubeClientComponents {
     log('getDeviceComponentsStream: $stream');
     return stream;
   }
+
+  Future<void> addDeviceComponentToDevice({
+    required List<String> componentIds,
+    required String accountId,
+    required String deviceId,
+    required String connectionState,
+  }) async {
+    const url = '/deviceComponent';
+
+    try {
+      final data = {
+        'component': componentIds.first,
+        'account': accountId,
+        'device': deviceId,
+        connectionState: connectionState,
+      };
+
+      await submit(
+        data: data,
+        url: url,
+        authToken: _auth.token,
+        method: 'put',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
