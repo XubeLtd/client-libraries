@@ -45,6 +45,13 @@ Future<dynamic> submit({
           data: encodedData,
         );
         break;
+      case 'patch':
+        response = await Dio().patch(
+          tempUrl,
+          options: options,
+          data: encodedData,
+        );
+        break;
     }
 
     if (response == null) return;
