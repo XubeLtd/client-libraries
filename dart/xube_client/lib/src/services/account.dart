@@ -26,6 +26,7 @@ class XubeClientAccount {
     var stream = _subscriptionManager.findStreamById(
       format: "View",
       contextKey: "ACCOUNT",
+      contextId: accountId,
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
@@ -37,6 +38,7 @@ class XubeClientAccount {
         "action": "Subscribe",
         "format": "View",
         "contextKey": "ACCOUNT",
+        "contextId": accountId,
         "typeKey": "ACCOUNT",
         "typeId": accountId,
       }),
@@ -45,6 +47,7 @@ class XubeClientAccount {
     _subscriptionManager.createSubscription(
       format: "View",
       contextKey: "ACCOUNT",
+      contextId: accountId,
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
@@ -52,6 +55,7 @@ class XubeClientAccount {
     stream = _subscriptionManager.findStreamById(
       format: "View",
       contextKey: "ACCOUNT",
+      contextId: accountId,
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
