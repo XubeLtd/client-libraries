@@ -30,7 +30,7 @@ class XubeClientComponents {
       "typeId": deviceId,
     });
 
-    _subscriptionManager.createSubscription(
+    _subscriptionManager.unsubscribe(
       format: "View",
       contextKey: "COMPONENT",
       typeKey: "DEVICE",
