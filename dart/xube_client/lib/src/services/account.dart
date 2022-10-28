@@ -18,6 +18,27 @@ class XubeClientAccount {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
+  void unsubscribe(String accountId) {
+    _channel.sink.add(
+      json.encode({
+        "action": "Unsubscribe",
+        "format": "View",
+        "contextKey": "ACCOUNT",
+        "contextId": accountId,
+        "typeKey": "ACCOUNT",
+        "typeId": accountId,
+      }),
+    );
+
+    _subscriptionManager.unsubscribe(
+      format: "View",
+      contextKey: "ACCOUNT",
+      contextId: accountId,
+      typeKey: "ACCOUNT",
+      typeId: accountId,
+    );
+  }
+
   Stream? getAccountStream(String accountId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;

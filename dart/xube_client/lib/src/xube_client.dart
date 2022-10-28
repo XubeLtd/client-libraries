@@ -100,6 +100,10 @@ class XubeClient {
 
       if (subscription == null) return;
 
+      JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+      String prettyprint = encoder.convert(data);
+      log(prettyprint);
+
       SubscriptionManager.instance.feed(
         format: subscription['format'],
         contextKey: subscription['contextKey'],

@@ -21,6 +21,23 @@ class XubeClientComponents {
 
   final dio = Dio();
 
+  void unsubscribe(String deviceId) {
+    json.encode({
+      "action": "Unsubscribe",
+      "format": "View",
+      "contextKey": "COMPONENT",
+      "typeKey": "DEVICE",
+      "typeId": deviceId,
+    });
+
+    _subscriptionManager.createSubscription(
+      format: "View",
+      contextKey: "COMPONENT",
+      typeKey: "DEVICE",
+      typeId: deviceId,
+    );
+  }
+
   Future<List<Component>> getAccountComponents(String accountId) async {
     List<Component> components = [];
 

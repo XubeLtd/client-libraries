@@ -18,30 +18,33 @@ class XubeClientProjects {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
+  void unsubscribe(String accountId) {
+    _channel.sink.add(
+      json.encode(
+        {
+          "action": "Unsubscribe",
+          "format": "View",
+          "contextKey": "PROJECT",
+          "typeKey": "ACCOUNT",
+          "typeId": accountId,
+        },
+      ),
+    );
+
+    _subscriptionManager.unsubscribe(
+      format: "View",
+      contextKey: "PROJECT",
+      typeKey: "ACCOUNT",
+      typeId: accountId,
+    );
+  }
+
   Future<void> createProject({
     required String accountId,
     required String endpointURL,
     required String name,
     required String stage,
   }) async {
-    // {
-    //   "account": "Gabor's rhino walkers",
-    //   "endpoint": "endpointURL",
-    //   "location": {
-    //     "address": {
-    //       "city": "Silicon Valley",
-    //       "country": "USA",
-    //       "postCode": "12345",
-    //       "state": "California",
-    //       "streetAndNumber": "Xube street 1-11"
-    //     },
-    //     "coordinateUrl": "test_COORDINATE_URL",
-    //     "name": "XUBE HQ"
-    //   },
-    //   "name": "Area 51",
-    //   "stage": "general"
-    // }
-
     const url = '/project';
 
     try {

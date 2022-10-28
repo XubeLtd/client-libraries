@@ -21,6 +21,27 @@ class XubeClientAccounts {
 
   final dio = Dio();
 
+  void unsubscribe() {
+    _channel.sink.add(
+      json.encode(
+        {
+          "action": "Unsubscribe",
+          "format": "View",
+          "contextKey": "ACCOUNT",
+          "typeKey": "USER",
+          "typeId": _auth.email,
+        },
+      ),
+    );
+
+    _subscriptionManager.unsubscribe(
+      format: "View",
+      contextKey: "ACCOUNT",
+      typeKey: "USER",
+      typeId: _auth.email!,
+    );
+  }
+
   Stream? getUserAccountsStream() {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;

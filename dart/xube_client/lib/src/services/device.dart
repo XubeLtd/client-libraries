@@ -21,6 +21,25 @@ class XubeClientDevice {
 
   final dio = Dio();
 
+  void unsubscribe(String deviceId) {
+    _channel.sink.add(
+      json.encode({
+        "action": "Unsubscribe",
+        "format": "View",
+        "contextKey": "DEVICE",
+        "typeKey": "DEVICE",
+        "typeId": deviceId,
+      }),
+    );
+
+    _subscriptionManager.unsubscribe(
+      format: "View",
+      contextKey: "DEVICE",
+      typeKey: "DEVICE",
+      typeId: deviceId,
+    );
+  }
+
   Stream? getDeviceStream(String deviceId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;

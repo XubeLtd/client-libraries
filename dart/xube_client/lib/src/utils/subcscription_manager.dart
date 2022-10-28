@@ -15,6 +15,10 @@ class XubeSubscription {
     log('Adding data: $data to XubeSubscription $id');
     _controller.add(data);
   }
+
+  void close() {
+    _controller.close();
+  }
 }
 
 class SubscriptionManager {
@@ -98,5 +102,26 @@ class SubscriptionManager {
     final newSubscription = XubeSubscription(id: id);
 
     _subscriptions.putIfAbsent(id, () => newSubscription);
+  }
+
+  void unsubscribe({
+    required String format,
+    required String contextKey,
+    required String typeKey,
+    required String typeId,
+    String contextId = '',
+  }) {
+    final id = _formatId(
+      format: format,
+      contextKey: contextKey,
+      typeKey: typeKey,
+      typeId: typeId,
+      contextId: contextId,
+    );
+
+    _subscriptions[id]?.close();
+    _subscriptions.remove(id);
+
+    log('Subscription Manager - unsubscribe $id');
   }
 }

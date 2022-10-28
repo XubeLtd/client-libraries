@@ -70,7 +70,7 @@ class XubeClientDevices {
 
     try {
       final data = {
-        'deviceID': deviceIds,
+        'deviceIDs': deviceIds,
         'projectID': projectId,
       };
 
