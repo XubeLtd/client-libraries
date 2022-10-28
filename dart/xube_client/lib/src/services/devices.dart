@@ -18,6 +18,27 @@ class XubeClientDevices {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
+  void unsubscribe(String projectId) {
+    _channel.sink.add(
+      json.encode(
+        {
+          "action": "Unsubscribe",
+          "format": "View",
+          "contextKey": "DEVICE",
+          "typeKey": "PROJECT",
+          "typeId": projectId,
+        },
+      ),
+    );
+
+    _subscriptionManager.unsubscribe(
+      format: "View",
+      contextKey: "DEVICE",
+      typeKey: "PROJECT",
+      typeId: projectId,
+    );
+  }
+
   Stream? getProjectDevicesStream(String projectId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
