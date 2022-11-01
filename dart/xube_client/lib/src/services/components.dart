@@ -5,12 +5,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/utils/subcscription_manager.dart';
 import 'package:xube_client/xube_client.dart';
 
-class XubeClientComponents {
+class XubeClientDeviceComponents {
   final WebSocketChannel _channel;
   final XubeClientAuth _auth;
   final SubscriptionManager _subscriptionManager;
 
-  XubeClientComponents({
+  XubeClientDeviceComponents({
     required WebSocketChannel channel,
     required XubeClientAuth auth,
     SubscriptionManager? subscriptionManager,
@@ -36,36 +36,6 @@ class XubeClientComponents {
       typeKey: "DEVICE",
       typeId: deviceId,
     );
-  }
-
-  Future<List<Component>> getAccountComponents(String accountId) async {
-    List<Component> components = [];
-
-    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
-      return components;
-    }
-
-    const url = '/component/account';
-    try {
-      final responseData = await submit(
-        data: {'account': accountId},
-        url: url,
-        authToken: _auth.token,
-        method: 'get',
-      );
-
-      log('responseData: $responseData');
-
-      final List<dynamic> rawComponents = responseData['message'] ?? [];
-
-      components = rawComponents
-          .map((e) => Component.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      return components;
-    } catch (error) {
-      rethrow;
-    }
   }
 
   Stream? getDeviceComponentsStream(String deviceId) {

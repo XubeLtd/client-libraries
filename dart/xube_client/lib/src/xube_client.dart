@@ -9,6 +9,7 @@ import 'dart:developer';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/services/components.dart';
 import 'package:xube_client/src/services/devices.dart';
+import 'package:xube_client/src/services/account_components.dart';
 
 // Utilities
 import 'package:xube_client/src/utils/subcscription_manager.dart';
@@ -33,7 +34,8 @@ class XubeClient {
   late final XubeClientDevice _device;
   late final XubeClientDevices _devices;
   late final XubeClientComponent _component;
-  late final XubeClientComponents _components;
+  late final XubeClientDeviceComponents _deviceComponents;
+  late final XubeClientAccountComponents _accountComponents;
 
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
@@ -43,7 +45,8 @@ class XubeClient {
   XubeClientDevice get device => _device;
   XubeClientDevices get devices => _devices;
   XubeClientComponent get component => _component;
-  XubeClientComponents get components => _components;
+  XubeClientDeviceComponents get deviceComponents => _deviceComponents;
+  XubeClientAccountComponents get accountComponents => _accountComponents;
 
   XubeClient({
     WebSocketChannel? channel,
@@ -55,7 +58,8 @@ class XubeClient {
     XubeClientDevice? device,
     XubeClientDevices? devices,
     XubeClientComponent? component,
-    XubeClientComponents? components,
+    XubeClientDeviceComponents? deviceComponents,
+    XubeClientAccountComponents? accountComponents,
   }) {
     log('Init Xube Client');
 
@@ -77,8 +81,10 @@ class XubeClient {
       _devices = devices ?? XubeClientDevices(channel: _channel, auth: _auth);
       _component =
           component ?? XubeClientComponent(channel: _channel, auth: _auth);
-      _components =
-          components ?? XubeClientComponents(channel: _channel, auth: _auth);
+      _deviceComponents = deviceComponents ??
+          XubeClientDeviceComponents(channel: _channel, auth: _auth);
+      _accountComponents = accountComponents ??
+          XubeClientAccountComponents(channel: _channel, auth: _auth);
     });
   }
 
