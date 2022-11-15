@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:xube_client/src/utils/subcscription_manager.dart';
+import 'package:xube_client/src/utils/subscription_manager.dart';
 import 'package:xube_client/xube_client.dart';
 
 class XubeClientAccountComponents {
