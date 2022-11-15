@@ -10,9 +10,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/services/components.dart';
 import 'package:xube_client/src/services/devices.dart';
 import 'package:xube_client/src/services/account_components.dart';
+import 'package:xube_client/src/services/products.dart';
 
 // Utilities
-import 'package:xube_client/src/utils/subcscription_manager.dart';
+import 'package:xube_client/src/utils/subscription_manager.dart';
 
 // Services
 import 'package:xube_client/src/services/auth.dart';
@@ -28,6 +29,7 @@ class XubeClient {
   late final WebSocketChannel _channel;
   late final XubeClientAuth _auth;
   late final XubeClientAccounts _accounts;
+  late final XubeClientProducts _products;
   late final XubeClientAccount _account;
   late final XubeClientProjects _projects;
   late final XubeClientProject _project;
@@ -39,6 +41,7 @@ class XubeClient {
 
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
+  XubeClientProducts get products => _products;
   XubeClientAccount get account => _account;
   XubeClientProjects get projects => _projects;
   XubeClientProject get project => _project;
@@ -52,6 +55,7 @@ class XubeClient {
     WebSocketChannel? channel,
     XubeClientAuth? auth,
     XubeClientAccounts? accounts,
+    XubeClientProducts? products,
     XubeClientAccount? account,
     XubeClientProjects? projects,
     XubeClientProject? project,
@@ -73,6 +77,8 @@ class XubeClient {
 
       _accounts =
           accounts ?? XubeClientAccounts(channel: _channel, auth: _auth);
+      _products =
+          products ?? XubeClientProducts(channel: _channel, auth: _auth);
       _account = account ?? XubeClientAccount(channel: _channel, auth: _auth);
       _projects =
           projects ?? XubeClientProjects(channel: _channel, auth: _auth);
