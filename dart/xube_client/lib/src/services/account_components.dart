@@ -26,7 +26,7 @@ class XubeClientAccountComponents {
       return components;
     }
 
-    const url = '/component/account';
+    const url = '/components/account';
     try {
       final responseData = await submit(
         data: {'account': accountId},
@@ -37,7 +37,7 @@ class XubeClientAccountComponents {
 
       log('responseData: $responseData');
 
-      final List<dynamic> rawComponents = responseData['message'] ?? [];
+      final List<dynamic> rawComponents = responseData ?? [];
 
       components = rawComponents
           .map((e) => Component.fromJson(e as Map<String, dynamic>))
