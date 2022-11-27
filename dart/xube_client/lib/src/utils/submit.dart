@@ -58,9 +58,9 @@ Future<dynamic> submit({
 
     final responseData = response.data;
 
-    if (responseData['error'] != null) {
-      throw Exception(responseData['error']);
-    }
+    // if (responseData['error'] != null) {
+    //   throw Exception(responseData['error']);
+    // }
 
     return responseData;
   } catch (e) {
