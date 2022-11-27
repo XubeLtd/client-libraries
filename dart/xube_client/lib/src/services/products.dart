@@ -19,16 +19,37 @@ class XubeClientProducts {
         _subscriptionManager =
             subscriptionManager ?? SubscriptionManager.instance;
 
-  Stream? getUserProductsStream() {
+  void unsubscribe(String accountId) {
+    _channel.sink.add(
+      json.encode(
+        {
+          "action": "Unsubscribe",
+          "format": "View",
+          "contextKey": "COMPONENT#PRODUCT",
+          "typeKey": "ACCOUNT",
+          "typeId": accountId,
+        },
+      ),
+    );
+
+    _subscriptionManager.unsubscribe(
+      format: "View",
+      contextKey: "COMPONENT#PRODUCT",
+      typeKey: "ACCOUNT",
+      typeId: accountId,
+    );
+  }
+
+  Stream? getUserProductsStream(String accountId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
 
     var stream = _subscriptionManager.findStreamById(
       format: 'View',
-      contextKey: 'PRODUCT',
-      typeKey: 'USER',
-      typeId: _auth.email!,
+      contextKey: 'COMPONENT#PRODUCT',
+      typeKey: 'ACCOUNT',
+      typeId: accountId,
     );
 
     if (stream != null) return stream;
@@ -36,27 +57,27 @@ class XubeClientProducts {
     _channel.sink.add(
       json.encode(
         {
-          'action': 'Subscribe',
-          'format': 'View',
-          'contextKey': 'PRODUCT',
-          'typeKey': 'USER',
-          'typeId': _auth.email,
+          'action': "Subscribe",
+          'format': "View",
+          'contextKey': "COMPONENT#PRODUCT",
+          'typeKey': "ACCOUNT",
+          'typeId': accountId,
         },
       ),
     );
 
     _subscriptionManager.createSubscription(
       format: 'View',
-      contextKey: 'PRODUCT',
-      typeKey: 'USER',
-      typeId: _auth.email!,
+      contextKey: 'COMPONENT#PRODUCT',
+      typeKey: 'ACCOUNT',
+      typeId: accountId,
     );
 
     stream = _subscriptionManager.findStreamById(
       format: 'View',
-      contextKey: 'PRODUCT',
-      typeKey: 'USER',
-      typeId: _auth.email!,
+      contextKey: 'COMPONENT#PRODUCT',
+      typeKey: 'PRODUCT',
+      typeId: accountId,
     );
 
     log('getUserProductsStream: $stream');
