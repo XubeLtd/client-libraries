@@ -40,6 +40,28 @@ class XubeClientProducts {
     );
   }
 
+  Future<void> createProduct({
+    required String accountId,
+    required String name,
+  }) async {
+    const url = '/product';
+
+    try {
+      final data = {
+        'account': accountId,
+        'name': name,
+      };
+
+      await submit(
+        data: data,
+        url: url,
+        authToken: _auth.token,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Stream? getUserProductsStream(String accountId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
@@ -76,7 +98,7 @@ class XubeClientProducts {
     stream = _subscriptionManager.findStreamById(
       format: 'View',
       contextKey: 'COMPONENT#PRODUCT',
-      typeKey: 'PRODUCT',
+      typeKey: 'ACCOUNT',
       typeId: accountId,
     );
 
