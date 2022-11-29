@@ -125,8 +125,7 @@ class XubeClientDevices {
 
       log('responseData: $responseData');
 
-      final List<dynamic> rawDevices =
-          responseData['message']['accountDevices'] ?? [];
+      final List<dynamic> rawDevices = responseData['accountDevices'] ?? [];
 
       devices = rawDevices
           .map((e) => Device.fromJson(e as Map<String, dynamic>))
