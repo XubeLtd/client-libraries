@@ -12,6 +12,7 @@ import 'package:xube_client/src/services/codes.dart';
 import 'package:xube_client/src/services/components.dart';
 import 'package:xube_client/src/services/devices.dart';
 import 'package:xube_client/src/services/account_components.dart';
+import 'package:xube_client/src/services/product.dart';
 import 'package:xube_client/src/services/products.dart';
 
 // Utilities
@@ -32,6 +33,7 @@ class XubeClient {
   late final XubeClientAuth _auth;
   late final XubeClientAccounts _accounts;
   late final XubeClientProducts _products;
+  late final XubeClientProduct _product;
   late final XubeClientAccount _account;
   late final XubeClientProjects _projects;
   late final XubeClientProject _project;
@@ -46,6 +48,7 @@ class XubeClient {
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
   XubeClientProducts get products => _products;
+  XubeClientProduct get product => _product;
   XubeClientAccount get account => _account;
   XubeClientProjects get projects => _projects;
   XubeClientProject get project => _project;
@@ -62,6 +65,7 @@ class XubeClient {
     XubeClientAuth? auth,
     XubeClientAccounts? accounts,
     XubeClientProducts? products,
+    XubeClientProduct? product,
     XubeClientAccount? account,
     XubeClientProjects? projects,
     XubeClientProject? project,
@@ -85,9 +89,10 @@ class XubeClient {
 
       _accounts =
           accounts ?? XubeClientAccounts(channel: _channel, auth: _auth);
+      _account = account ?? XubeClientAccount(channel: _channel, auth: _auth);
       _products =
           products ?? XubeClientProducts(channel: _channel, auth: _auth);
-      _account = account ?? XubeClientAccount(channel: _channel, auth: _auth);
+      _product = product ?? XubeClientProduct(channel: _channel, auth: _auth);
       _projects =
           projects ?? XubeClientProjects(channel: _channel, auth: _auth);
       _project = project ?? XubeClientProject(channel: _channel, auth: _auth);
