@@ -114,8 +114,7 @@ class XubeClient {
 
     _channel = channel ??
         WebSocketChannel.connect(
-          Uri.parse(
-              'wss://nagomkvh72.execute-api.eu-west-1.amazonaws.com/dev?token=$authToken'),
+          Uri.parse('wss://dev.socket.xube.io/subscriptions?token=$authToken'),
         );
 
     _channel.stream.listen((event) {
