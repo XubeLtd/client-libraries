@@ -118,7 +118,7 @@ class XubeClientAccounts {
       );
 
       log('createAccount responseData: $responseData');
-      return responseData['message']?['id'];
+      return responseData['id'];
     } catch (e) {
       rethrow;
     }
