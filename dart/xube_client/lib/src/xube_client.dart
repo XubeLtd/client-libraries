@@ -9,6 +9,7 @@ import 'dart:developer';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/services/code.dart';
 import 'package:xube_client/src/services/codes.dart';
+import 'package:xube_client/src/services/component_data_endpoint.dart';
 import 'package:xube_client/src/services/components.dart';
 import 'package:xube_client/src/services/devices.dart';
 import 'package:xube_client/src/services/account_components.dart';
@@ -32,9 +33,9 @@ class XubeClient {
   late final WebSocketChannel _channel;
   late final XubeClientAuth _auth;
   late final XubeClientAccounts _accounts;
+  late final XubeClientAccount _account;
   late final XubeClientProducts _products;
   late final XubeClientProduct _product;
-  late final XubeClientAccount _account;
   late final XubeClientProjects _projects;
   late final XubeClientProject _project;
   late final XubeClientDevice _device;
@@ -44,6 +45,7 @@ class XubeClient {
   late final XubeClientAccountComponents _accountComponents;
   late final XubeClientCodes _codes;
   late final XubeClientCode _code;
+  late final XubeClientComponentDataEndpoint _componentDataEndpoint;
 
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
@@ -59,6 +61,8 @@ class XubeClient {
   XubeClientAccountComponents get accountComponents => _accountComponents;
   XubeClientCodes get codes => _codes;
   XubeClientCode get code => _code;
+  XubeClientComponentDataEndpoint get componentDataEndpoint =>
+      _componentDataEndpoint;
 
   XubeClient({
     WebSocketChannel? channel,
@@ -76,6 +80,7 @@ class XubeClient {
     XubeClientAccountComponents? accountComponents,
     XubeClientCodes? codes,
     XubeClientCode? code,
+    XubeClientComponentDataEndpoint? componentDataEndpoint,
   }) {
     log('Init Xube Client');
 
@@ -106,6 +111,8 @@ class XubeClient {
           XubeClientAccountComponents(channel: _channel, auth: _auth);
       _codes = codes ?? XubeClientCodes(channel: _channel, auth: _auth);
       _code = code ?? XubeClientCode(channel: _channel, auth: _auth);
+      _componentDataEndpoint = componentDataEndpoint ??
+          XubeClientComponentDataEndpoint(channel: _channel, auth: _auth);
     });
   }
 
