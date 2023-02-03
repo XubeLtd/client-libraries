@@ -7,6 +7,7 @@ import 'dart:developer';
 
 // 3rd-Party Packages
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:xube_client/src/services/account_devices.dart';
 import 'package:xube_client/src/services/code.dart';
 import 'package:xube_client/src/services/codes.dart';
 import 'package:xube_client/src/services/component_data_endpoint.dart';
@@ -46,6 +47,7 @@ class XubeClient {
   late final XubeClientCodes _codes;
   late final XubeClientCode _code;
   late final XubeClientComponentDataEndpoint _componentDataEndpoint;
+  late final XubeClientAccountDevices _accountDevices;
 
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
@@ -63,6 +65,7 @@ class XubeClient {
   XubeClientCode get code => _code;
   XubeClientComponentDataEndpoint get componentDataEndpoint =>
       _componentDataEndpoint;
+  XubeClientAccountDevices get accountDevices => _accountDevices;
 
   XubeClient({
     WebSocketChannel? channel,
@@ -81,6 +84,7 @@ class XubeClient {
     XubeClientCodes? codes,
     XubeClientCode? code,
     XubeClientComponentDataEndpoint? componentDataEndpoint,
+    XubeClientAccountDevices? accountDevices,
   }) {
     log('Init Xube Client');
 
@@ -113,6 +117,8 @@ class XubeClient {
       _code = code ?? XubeClientCode(channel: _channel, auth: _auth);
       _componentDataEndpoint = componentDataEndpoint ??
           XubeClientComponentDataEndpoint(channel: _channel, auth: _auth);
+      _accountDevices = accountDevices ??
+          XubeClientAccountDevices(channel: _channel, auth: _auth);
     });
   }
 
