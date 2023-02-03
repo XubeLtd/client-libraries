@@ -24,7 +24,7 @@ class XubeClientAccountDevices {
         {
           "action": "Unsubscribe",
           "format": "View",
-          "contextKey": "COMPONENT#DEVICE_",
+          "contextKey": "COMPONENT#DEVICE",
           "typeKey": "ACCOUNT",
           "typeId": accountId,
         },
@@ -33,7 +33,7 @@ class XubeClientAccountDevices {
 
     _subscriptionManager.unsubscribe(
       format: "View",
-      contextKey: "COMPONENT#DEVICE_",
+      contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
@@ -46,7 +46,7 @@ class XubeClientAccountDevices {
 
     var stream = _subscriptionManager.findStreamById(
       format: "View",
-      contextKey: "COMPONENT#DEVICE_",
+      contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
@@ -58,7 +58,7 @@ class XubeClientAccountDevices {
         {
           "action": "Subscribe",
           "format": "View",
-          "contextKey": "COMPONENT#DEVICE_",
+          "contextKey": "COMPONENT#DEVICE",
           "typeKey": "ACCOUNT",
           "typeId": accountId,
         },
@@ -67,14 +67,14 @@ class XubeClientAccountDevices {
 
     _subscriptionManager.createSubscription(
       format: "View",
-      contextKey: "COMPONENT#DEVICE_",
+      contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
 
     stream = _subscriptionManager.findStreamById(
       format: "View",
-      contextKey: "COMPONENT#DEVICE_",
+      contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
