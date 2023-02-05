@@ -21,35 +21,43 @@ class XubeClientDevice {
 
   final dio = Dio();
 
-  void unsubscribe(String deviceId) {
+  void unsubscribe({
+    required String accountId,
+    required String deviceId,
+    String format = 'View',
+  }) {
     _channel.sink.add(
       json.encode({
         "action": "Unsubscribe",
-        "format": "View",
-        "contextKey": "DEVICE",
-        "typeKey": "DEVICE",
-        "typeId": deviceId,
+        "format": format,
+        "contextKey": "COMPONENT#$deviceId",
+        "typeKey": "ACCOUNT",
+        "typeId": accountId,
       }),
     );
 
     _subscriptionManager.unsubscribe(
-      format: "View",
-      contextKey: "DEVICE",
-      typeKey: "DEVICE",
-      typeId: deviceId,
+      format: format,
+      contextKey: "COMPONENT#$deviceId",
+      typeKey: "ACCOUNT",
+      typeId: accountId,
     );
   }
 
-  Stream? getDeviceStream(String deviceId) {
+  Stream? getDeviceStream({
+    required String accountId,
+    required String deviceId,
+    String format = 'View',
+  }) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
 
     var stream = _subscriptionManager.findStreamById(
-      format: "View",
-      contextKey: "DEVICE",
-      typeKey: "DEVICE",
-      typeId: deviceId,
+      format: format,
+      contextKey: "COMPONENT#$deviceId",
+      typeKey: "ACCOUNT",
+      typeId: accountId,
     );
 
     if (stream != null) return stream;
@@ -58,28 +66,82 @@ class XubeClientDevice {
     _channel.sink.add(
       json.encode({
         "action": "Subscribe",
-        "format": "View",
-        "contextKey": "DEVICE",
-        "typeKey": "DEVICE",
-        "typeId": deviceId,
+        "format": format,
+        "contextKey": "COMPONENT#$deviceId",
+        "typeKey": "ACCOUNT",
+        "typeId": accountId,
       }),
     );
 
     _subscriptionManager.createSubscription(
-      format: "View",
-      contextKey: "DEVICE",
-      typeKey: "DEVICE",
-      typeId: deviceId,
+      format: format,
+      contextKey: "COMPONENT#$deviceId",
+      typeKey: "ACCOUNT",
+      typeId: accountId,
     );
 
     stream = _subscriptionManager.findStreamById(
-      format: "View",
-      contextKey: "DEVICE",
-      typeKey: "DEVICE",
-      typeId: deviceId,
+      format: format,
+      contextKey: "COMPONENT#$deviceId",
+      typeKey: "ACCOUNT",
+      typeId: accountId,
     );
 
-    log('getDeviceStream: $stream');
+    log('getDeviceStream: $stream $format');
     return stream;
+  }
+
+  Future<Device?> getDevice(String deviceId) async {
+    Device? device;
+
+    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
+      return null;
+    }
+
+    final url = '/devices/$deviceId';
+
+    try {
+      final responseData = await submit(
+        data: {},
+        url: url,
+        authToken: _auth.token,
+        method: 'get',
+      );
+
+      log('responseData: $responseData');
+
+      device = Device.fromJson(responseData);
+
+      return device;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateDeviceConfiguration({
+    required String deviceId,
+    required Map<String, dynamic> config,
+  }) async {
+    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
+      return;
+    }
+
+    const url = '/devices/config';
+
+    try {
+      final responseData = await submit(
+        data: {
+          "device": deviceId,
+          "config": config,
+        },
+        url: url,
+        authToken: _auth.token,
+        method: 'patch',
+      );
+
+      log('responseData: $responseData');
+    } catch (error) {
+      rethrow;
+    }
   }
 }

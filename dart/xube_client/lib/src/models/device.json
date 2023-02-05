@@ -1,0 +1,51 @@
+{
+    "SK_GSI1": "LATEST",
+    "generation": "2",
+    "SK_GSI2": "2#ACCOUNT1#DEVICE_6836bddd-702c-4385-9a42-be0b23c46a8b",
+    "status": {
+        "current": {},
+        "expected": {
+            "system": {
+                "a": 3
+            }
+        }
+    },
+    "name": "DEVICE_6836bddd-702c-4385-9a42-be0b23c46a8b",
+    "state": "draft",
+    "v": "1",
+    "SK": "COMPONENT#DEVICE_6836bddd-702c-4385-9a42-be0b23c46a8b#1",
+    "actual": {
+        "schema": {},
+        "config": {},
+        "connections": {}
+    },
+    "id": "DEVICE_6836bddd-702c-4385-9a42-be0b23c46a8b",
+    "batch": "0000000001",
+    "model": "ORIGINAL",
+    "version": "1",
+    "creator": "me@xube.io",
+    "manufactured": "2023-01-22T13:47:00Z",
+    "config": {
+        "schema": {},
+        "config": {},
+        "connections": {}
+    },
+    "created": "2023-02-01T16:57:45.587Z",
+    "deviceModel": "DEVICE-MODEL_91b3034d-8587-47f5-8fcc-07eb8396fb63",
+    "v_Component": "1",
+    "make": "XUBE",
+    "base": {
+        "configuredVersion": "0.1.6",
+        "componentID": "DEVICE-MODEL_91b3034d-8587-47f5-8fcc-07eb8396fb63",
+        "originalVersion": "0.1.6"
+    },
+    "capabilities": {},
+    "manufacturer": "XUBE",
+    "PK_GSI2": "DEVICE#XUBE#ORIGINAL",
+    "orderState": "Built",
+    "account": "ACCOUNT1",
+    "PK": "ACCOUNT#ACCOUNT1",
+    "PK_GSI1": "COMPONENT#DEVICE_6836bddd-702c-4385-9a42-be0b23c46a8b",
+    "type": "DEVICE",
+    "exposure": "private"
+}
