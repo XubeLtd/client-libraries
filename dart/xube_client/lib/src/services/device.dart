@@ -47,6 +47,7 @@ class XubeClientDevice {
   Stream? getDeviceStream({
     required String accountId,
     required String deviceId,
+    String version = '',
     String format = 'View',
   }) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
@@ -58,6 +59,7 @@ class XubeClientDevice {
       contextKey: "COMPONENT#$deviceId",
       typeKey: "ACCOUNT",
       typeId: accountId,
+      contextId: version,
     );
 
     if (stream != null) return stream;
@@ -70,6 +72,7 @@ class XubeClientDevice {
         "contextKey": "COMPONENT#$deviceId",
         "typeKey": "ACCOUNT",
         "typeId": accountId,
+        "contextId": version,
       }),
     );
 
@@ -78,6 +81,7 @@ class XubeClientDevice {
       contextKey: "COMPONENT#$deviceId",
       typeKey: "ACCOUNT",
       typeId: accountId,
+      contextId: version,
     );
 
     stream = _subscriptionManager.findStreamById(
@@ -85,6 +89,7 @@ class XubeClientDevice {
       contextKey: "COMPONENT#$deviceId",
       typeKey: "ACCOUNT",
       typeId: accountId,
+      contextId: version,
     );
 
     log('getDeviceStream: $stream $format');
