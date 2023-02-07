@@ -3,13 +3,13 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:xube_client/src/models/result.dart';
 
-Future<Result> submit({
+Future<dynamic> submit({
   required Map<String, dynamic> data,
   required String url,
   String? authToken,
   String method = 'post',
 }) async {
-  dynamic data;
+  dynamic resultData;
   bool hasError = false;
   String message = '';
   String title = 'Oops, something went wrong!';
@@ -66,10 +66,12 @@ Future<Result> submit({
         message: "That didn't load right",
       );
     }
-
     final responseData = response.data;
-    data = responseData;
+
+    resultData = responseData;
     hasError = false;
+
+    return responseData;
   } catch (e) {
     hasError = true;
     message = '$e';
@@ -77,7 +79,7 @@ Future<Result> submit({
   }
 
   return Result(
-    data: data,
+    data: resultData,
     hasError: hasError,
     title: title,
     message: message,

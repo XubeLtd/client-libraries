@@ -72,6 +72,8 @@ class XubeClientAuth {
 
   Future<void> logIn(String email, String password) async {
     const url = '/user/log-in';
+    print('debug ep $email, $password');
+
     try {
       final responseData = await submit(
         data: {
@@ -81,7 +83,7 @@ class XubeClientAuth {
         url: url,
       );
 
-      final token = responseData.data['token'];
+      final token = responseData['token'];
 
       final payload = parseJwtPayLoad(token);
 
