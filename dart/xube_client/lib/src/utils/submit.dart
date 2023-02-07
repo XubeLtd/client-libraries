@@ -1,13 +1,19 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:xube_client/src/models/result.dart';
 
-Future<dynamic> submit({
+Future<Result> submit({
   required Map<String, dynamic> data,
   required String url,
   String? authToken,
   String method = 'post',
 }) async {
+  dynamic data;
+  bool hasError = false;
+  String message = '';
+  String title = 'Oops, something went wrong!';
+
   final tempUrl = 'https://dev.api.xube.io$url';
 
   try {
@@ -54,17 +60,26 @@ Future<dynamic> submit({
         break;
     }
 
-    if (response == null) return;
+    if (response == null) {
+      return Result(
+        hasError: true,
+        message: "That didn't load right",
+      );
+    }
 
     final responseData = response.data;
-
-    // if (responseData['error'] != null) {
-    //   throw Exception(responseData['error']);
-    // }
-
-    return responseData;
+    data = responseData;
+    hasError = false;
   } catch (e) {
+    hasError = true;
+    message = '$e';
     log(e.toString());
-    rethrow;
   }
+
+  return Result(
+    data: data,
+    hasError: hasError,
+    title: title,
+    message: message,
+  );
 }

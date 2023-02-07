@@ -115,7 +115,7 @@ class XubeClientDevice {
 
       log('responseData: $responseData');
 
-      device = Device.fromJson(responseData);
+      device = Device.fromJson(responseData.data);
 
       return device;
     } catch (error) {

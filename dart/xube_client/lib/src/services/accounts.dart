@@ -86,7 +86,7 @@ class XubeClientAccounts {
     return stream;
   }
 
-  Future<String?> createAccount(String accountName) async {
+  Future<void> createAccount(String accountName) async {
     const url = '/account';
 
     try {
@@ -118,7 +118,6 @@ class XubeClientAccounts {
       );
 
       log('createAccount responseData: $responseData');
-      return responseData['id'];
     } catch (e) {
       rethrow;
     }

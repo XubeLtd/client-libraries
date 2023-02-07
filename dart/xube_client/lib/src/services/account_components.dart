@@ -37,7 +37,7 @@ class XubeClientAccountComponents {
 
       log('responseData: $responseData');
 
-      final List<dynamic> rawComponents = responseData ?? [];
+      final List<dynamic> rawComponents = responseData.data ?? [];
 
       components = rawComponents
           .map((e) => Component.fromJson(e as Map<String, dynamic>))

@@ -81,7 +81,7 @@ class XubeClientAuth {
         url: url,
       );
 
-      final token = responseData['token'];
+      final token = responseData.data['token'];
 
       final payload = parseJwtPayLoad(token);
 
