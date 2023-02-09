@@ -75,6 +75,11 @@ Future<dynamic> submit({
   } catch (e) {
     hasError = true;
     message = '$e';
+
+    if (e is DioError) {
+      message = e.message;
+    }
+
     log(e.toString());
   }
 

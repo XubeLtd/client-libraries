@@ -72,7 +72,6 @@ class XubeClientAuth {
 
   Future<void> logIn(String email, String password) async {
     const url = '/user/log-in';
-    print('debug ep $email, $password');
 
     try {
       final responseData = await submit(
