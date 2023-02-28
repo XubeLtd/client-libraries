@@ -46,22 +46,12 @@ class XubeClientAccountDevices {
 
     var stream = _subscriptionManager
         .findStreamById(
-      format: "Raw",
-      contextKey: "COMPONENT#DEVICE",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-    )
-        ?.map((event) {
-      final items = (event['items'] as List);
-
-      if (items.isNotEmpty) {
-        return items.map((e) => Device.fromJson(e)).toList()
-          ..sort(
-              (a, b) => (int.parse(b.version)).compareTo(int.parse(a.version)));
-      }
-
-      return <Device>[];
-    });
+          format: "Raw",
+          contextKey: "COMPONENT#DEVICE",
+          typeKey: "ACCOUNT",
+          typeId: accountId,
+        )
+        ?.map(_accountDevicesListTransformer);
 
     if (stream != null) return stream;
 
@@ -86,24 +76,45 @@ class XubeClientAccountDevices {
 
     stream = _subscriptionManager
         .findStreamById(
-      format: "Raw",
-      contextKey: "COMPONENT#DEVICE",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-    )
-        ?.map((event) {
-      final items = (event['items'] as List);
-
-      if (items.isNotEmpty) {
-        return items.map((e) => Device.fromJson(e)).toList()
-          ..sort(
-              (a, b) => (int.parse(b.version)).compareTo(int.parse(a.version)));
-      }
-
-      return <Device>[];
-    }) as Stream<List<Device>>;
+          format: "Raw",
+          contextKey: "COMPONENT#DEVICE",
+          typeKey: "ACCOUNT",
+          typeId: accountId,
+        )
+        ?.map(_accountDevicesListTransformer);
 
     log('getAccountDevicesStream: $stream');
     return stream;
+  }
+
+  List<Device> _accountDevicesListTransformer(dynamic event) {
+    List<Device> devices = [];
+
+    final items = (event['items'] as List);
+
+    if (items.isNotEmpty) {
+      devices = items.map((e) => Device.fromJson(e)).toList();
+    }
+
+    devices = [..._getMostRecentDeviceVersions(devices)];
+
+    return devices;
+  }
+
+  List<Device> _getMostRecentDeviceVersions(List<Device> devices) {
+    Map<String, Device> mostRecentDevices = {};
+    for (var device in devices) {
+      if (mostRecentDevices.containsKey(device.PKGSI1) &&
+          int.parse(mostRecentDevices[device.PKGSI1]?.version ?? '0') >
+              int.parse(device.version ?? '0')) {
+        continue;
+      }
+
+      if (device.PKGSI1 != null) {
+        mostRecentDevices.putIfAbsent(device.PKGSI1!, () => device);
+      }
+    }
+
+    return mostRecentDevices.values.toList();
   }
 }

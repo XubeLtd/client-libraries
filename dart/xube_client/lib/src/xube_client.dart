@@ -14,6 +14,8 @@ import 'package:xube_client/src/services/component_data_endpoint.dart';
 import 'package:xube_client/src/services/components.dart';
 import 'package:xube_client/src/services/devices.dart';
 import 'package:xube_client/src/services/account_components.dart';
+import 'package:xube_client/src/services/group.dart';
+import 'package:xube_client/src/services/groups.dart';
 import 'package:xube_client/src/services/product.dart';
 import 'package:xube_client/src/services/products.dart';
 
@@ -48,6 +50,8 @@ class XubeClient {
   late final XubeClientCode _code;
   late final XubeClientComponentDataEndpoint _componentDataEndpoint;
   late final XubeClientAccountDevices _accountDevices;
+  late final XubeClientGroups _groups;
+  late final XubeClientGroup _group;
 
   XubeClientAuth get auth => _auth;
   XubeClientAccounts get accounts => _accounts;
@@ -66,6 +70,8 @@ class XubeClient {
   XubeClientComponentDataEndpoint get componentDataEndpoint =>
       _componentDataEndpoint;
   XubeClientAccountDevices get accountDevices => _accountDevices;
+  XubeClientGroups get groups => _groups;
+  XubeClientGroup get group => _group;
 
   XubeClient({
     WebSocketChannel? channel,
@@ -85,6 +91,8 @@ class XubeClient {
     XubeClientCode? code,
     XubeClientComponentDataEndpoint? componentDataEndpoint,
     XubeClientAccountDevices? accountDevices,
+    XubeClientGroups? groups,
+    XubeClientGroup? group,
   }) {
     log('Init Xube Client');
 
@@ -119,7 +127,8 @@ class XubeClient {
           XubeClientComponentDataEndpoint(channel: _channel, auth: _auth);
       _accountDevices = accountDevices ??
           XubeClientAccountDevices(channel: _channel, auth: _auth);
-      log('debug _accountDevices $_accountDevices ${_accountDevices.hashCode}');
+      _groups = groups ?? XubeClientGroups(channel: _channel, auth: _auth);
+      _group = group ?? XubeClientGroup(channel: _channel, auth: _auth);
     });
   }
 

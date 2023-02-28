@@ -4,3 +4,4 @@ export 'src/models/location.dart';
 export 'src/models/component.dart';
 export 'src/models/device.dart';
 export 'src/models/result.dart';
+export 'src/models/group.dart';

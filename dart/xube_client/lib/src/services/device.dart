@@ -44,6 +44,19 @@ class XubeClientDevice {
     );
   }
 
+  Device? _deviceTransformer(dynamic event) {
+    final items = (event['items'] as List);
+    List<Device> devices = [];
+
+    if (items.isNotEmpty) {
+      devices = items.map((e) => Device.fromJson(e)).toList()
+        ..sort((a, b) => (int.parse(b.version ?? '0'))
+            .compareTo(int.parse(a.version ?? '0')));
+      return devices.first;
+    }
+    return null;
+  }
+
   Stream<Device?>? getDeviceStream({
     required String accountId,
     required String deviceId,
@@ -55,28 +68,18 @@ class XubeClientDevice {
 
     var stream = _subscriptionManager
         .findStreamById(
-      format: "Raw",
-      contextKey: "COMPONENT#$deviceId",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-      contextId: version,
-    )
-        ?.map((event) {
-      final items = (event['items'] as List);
-      List<Device> devices = [];
-
-      if (items.isNotEmpty) {
-        devices = items.map((e) => Device.fromJson(e)).toList()
-          ..sort(
-              (a, b) => (int.parse(b.version)).compareTo(int.parse(a.version)));
-        return devices.first;
-      }
-      return null;
-    });
+          format: "Raw",
+          contextKey: "COMPONENT#$deviceId",
+          typeKey: "ACCOUNT",
+          typeId: accountId,
+          contextId: version,
+        )
+        ?.map(_deviceTransformer);
 
     if (stream != null) return stream;
 
     log('getDeviceStream: subscribing to $deviceId');
+
     _channel.sink.add(
       json.encode({
         "action": "Subscribe",
@@ -98,24 +101,13 @@ class XubeClientDevice {
 
     stream = _subscriptionManager
         .findStreamById(
-      format: "Raw",
-      contextKey: "COMPONENT#$deviceId",
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-      contextId: version,
-    )
-        ?.map((event) {
-      final items = (event['items'] as List);
-      List<Device> devices = [];
-
-      if (items.isNotEmpty) {
-        devices = items.map((e) => Device.fromJson(e)).toList()
-          ..sort(
-              (a, b) => (int.parse(b.version)).compareTo(int.parse(a.version)));
-        return devices.first;
-      }
-      return null;
-    });
+          format: "Raw",
+          contextKey: "COMPONENT#$deviceId",
+          typeKey: "ACCOUNT",
+          typeId: accountId,
+          contextId: version,
+        )
+        ?.map(_deviceTransformer);
 
     log('getDeviceStream: $stream');
     return stream;

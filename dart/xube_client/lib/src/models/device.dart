@@ -2,13 +2,13 @@ class Device {
   Device({
     required this.SKGSI1,
     required this.generation,
+    required this.currentConfig,
     required this.SKGSI2,
-    required this.status,
     required this.name,
     required this.state,
     required this.v,
+    required this.files,
     required this.SK,
-    required this.actual,
     required this.id,
     required this.batch,
     required this.model,
@@ -17,7 +17,6 @@ class Device {
     required this.manufactured,
     required this.config,
     required this.created,
-    required this.updated,
     required this.deviceModel,
     required this.vComponent,
     required this.make,
@@ -32,48 +31,48 @@ class Device {
     required this.type,
     required this.exposure,
   });
-  late final String SKGSI1;
-  late final String generation;
-  late final String SKGSI2;
-  late final Map<String, dynamic> status;
-  late final String name;
-  late final String state;
-  late final String v;
-  late final String SK;
-  late final Map<String, dynamic> actual;
-  late final String id;
-  late final String batch;
-  late final String model;
-  late final String version;
-  late final String creator;
-  late final String manufactured;
+  late final String? SKGSI1;
+  late final String? generation;
+  late final Map<String, dynamic> currentConfig;
+  late final String? SKGSI2;
+  late final String? name;
+  late final String? state;
+  late final String? v;
+  late final Map<String, dynamic> files;
+  late final String? SK;
+  late final String? id;
+  late final String? batch;
+  late final String? model;
+  late final String? version;
+  late final String? creator;
+  late final String? manufactured;
   late final Map<String, dynamic> config;
-  late final String created;
+  late final String? created;
   late final String? updated;
-  late final String deviceModel;
-  late final String vComponent;
-  late final String make;
+  late final String? deviceModel;
+  late final String? vComponent;
+  late final String? make;
   late final Map<String, dynamic> base;
   late final Map<String, dynamic> capabilities;
-  late final String manufacturer;
-  late final String PKGSI2;
-  late final String orderState;
-  late final String account;
-  late final String PK;
-  late final String PKGSI1;
-  late final String type;
-  late final String exposure;
+  late final String? manufacturer;
+  late final String? PKGSI2;
+  late final String? orderState;
+  late final String? account;
+  late final String? PK;
+  late final String? PKGSI1;
+  late final String? type;
+  late final String? exposure;
 
   Device.fromJson(Map<String, dynamic> json) {
     SKGSI1 = json['SK_GSI1'];
     generation = json['generation'];
+    currentConfig = json['currentConfig'];
     SKGSI2 = json['SK_GSI2'];
-    status = json['status'];
     name = json['name'];
     state = json['state'];
     v = json['v'];
+    files = json['files'];
     SK = json['SK'];
-    actual = json['actual'];
     id = json['id'];
     batch = json['batch'];
     model = json['model'];
@@ -102,13 +101,13 @@ class Device {
     final _data = <String, dynamic>{};
     _data['SK_GSI1'] = SKGSI1;
     _data['generation'] = generation;
+    _data['currentConfig'] = currentConfig;
     _data['SK_GSI2'] = SKGSI2;
-    _data['status'] = status;
     _data['name'] = name;
     _data['state'] = state;
     _data['v'] = v;
+    _data['files'] = files;
     _data['SK'] = SK;
-    _data['actual'] = actual;
     _data['id'] = id;
     _data['batch'] = batch;
     _data['model'] = model;
