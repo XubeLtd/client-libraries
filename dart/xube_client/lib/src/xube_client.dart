@@ -119,6 +119,7 @@ class XubeClient {
           XubeClientComponentDataEndpoint(channel: _channel, auth: _auth);
       _accountDevices = accountDevices ??
           XubeClientAccountDevices(channel: _channel, auth: _auth);
+      log('debug _accountDevices $_accountDevices ${_accountDevices.hashCode}');
     });
   }
 

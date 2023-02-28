@@ -23,7 +23,7 @@ class XubeClientAccountDevices {
       json.encode(
         {
           "action": "Unsubscribe",
-          "format": "View",
+          "format": "Raw",
           "contextKey": "COMPONENT#DEVICE",
           "typeKey": "ACCOUNT",
           "typeId": accountId,
@@ -32,24 +32,36 @@ class XubeClientAccountDevices {
     );
 
     _subscriptionManager.unsubscribe(
-      format: "View",
+      format: "Raw",
       contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
   }
 
-  Stream? getAccountDevicesStream(String accountId) {
+  Stream<List<Device>>? getAccountDevicesStream(String accountId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
 
-    var stream = _subscriptionManager.findStreamById(
-      format: "View",
+    var stream = _subscriptionManager
+        .findStreamById(
+      format: "Raw",
       contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
-    );
+    )
+        ?.map((event) {
+      final items = (event['items'] as List);
+
+      if (items.isNotEmpty) {
+        return items.map((e) => Device.fromJson(e)).toList()
+          ..sort(
+              (a, b) => (int.parse(b.version)).compareTo(int.parse(a.version)));
+      }
+
+      return <Device>[];
+    });
 
     if (stream != null) return stream;
 
@@ -57,7 +69,7 @@ class XubeClientAccountDevices {
       json.encode(
         {
           "action": "Subscribe",
-          "format": "View",
+          "format": "Raw",
           "contextKey": "COMPONENT#DEVICE",
           "typeKey": "ACCOUNT",
           "typeId": accountId,
@@ -66,18 +78,30 @@ class XubeClientAccountDevices {
     );
 
     _subscriptionManager.createSubscription(
-      format: "View",
+      format: "Raw",
       contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
 
-    stream = _subscriptionManager.findStreamById(
-      format: "View",
+    stream = _subscriptionManager
+        .findStreamById(
+      format: "Raw",
       contextKey: "COMPONENT#DEVICE",
       typeKey: "ACCOUNT",
       typeId: accountId,
-    );
+    )
+        ?.map((event) {
+      final items = (event['items'] as List);
+
+      if (items.isNotEmpty) {
+        return items.map((e) => Device.fromJson(e)).toList()
+          ..sort(
+              (a, b) => (int.parse(b.version)).compareTo(int.parse(a.version)));
+      }
+
+      return <Device>[];
+    }) as Stream<List<Device>>;
 
     log('getAccountDevicesStream: $stream');
     return stream;
