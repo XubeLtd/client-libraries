@@ -91,11 +91,12 @@ class XubeClientAccountDevices {
     List<Device> devices = [];
 
     final items = (event['items'] as List);
+    log('debug _accountDevicesListTransformer items: ${items.length}');
 
     if (items.isNotEmpty) {
       devices = items.map((e) => Device.fromJson(e)).toList();
     }
-
+    log('debug _accountDevicesListTransformer devices: ${devices.length}');
     devices = [..._getMostRecentDeviceVersions(devices)];
 
     return devices;
@@ -104,14 +105,16 @@ class XubeClientAccountDevices {
   List<Device> _getMostRecentDeviceVersions(List<Device> devices) {
     Map<String, Device> mostRecentDevices = {};
     for (var device in devices) {
-      if (mostRecentDevices.containsKey(device.PKGSI1) &&
-          int.parse(mostRecentDevices[device.PKGSI1]?.version ?? '0') >
-              int.parse(device.version ?? '0')) {
+      final tempDevice = mostRecentDevices[device.id];
+      if (tempDevice == null) {
+        if (device.id != null) {
+          mostRecentDevices.putIfAbsent(device.id!, () => device);
+        }
         continue;
       }
 
-      if (device.PKGSI1 != null) {
-        mostRecentDevices.putIfAbsent(device.PKGSI1!, () => device);
+      if (tempDevice.version < device.version) {
+        mostRecentDevices[device.id!] = device;
       }
     }
 

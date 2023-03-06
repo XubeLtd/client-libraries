@@ -1,135 +1,50 @@
-class Device {
-  Device({
-    required this.SKGSI1,
-    required this.generation,
-    required this.currentConfig,
-    required this.SKGSI2,
-    required this.name,
-    required this.state,
-    required this.v,
-    required this.files,
-    required this.SK,
-    required this.id,
-    required this.batch,
-    required this.model,
-    required this.version,
-    required this.creator,
-    required this.manufactured,
-    required this.config,
-    required this.created,
-    required this.deviceModel,
-    required this.vComponent,
-    required this.make,
-    required this.base,
-    required this.capabilities,
-    required this.manufacturer,
-    required this.PKGSI2,
-    required this.orderState,
-    required this.account,
-    required this.PK,
-    required this.PKGSI1,
-    required this.type,
-    required this.exposure,
-  });
-  late final String? SKGSI1;
-  late final String? generation;
-  late final Map<String, dynamic> currentConfig;
-  late final String? SKGSI2;
-  late final String? name;
-  late final String? state;
-  late final String? v;
-  late final Map<String, dynamic> files;
-  late final String? SK;
-  late final String? id;
-  late final String? batch;
-  late final String? model;
-  late final String? version;
-  late final String? creator;
-  late final String? manufactured;
-  late final Map<String, dynamic> config;
-  late final String? created;
-  late final String? updated;
-  late final String? deviceModel;
-  late final String? vComponent;
-  late final String? make;
-  late final Map<String, dynamic> base;
-  late final Map<String, dynamic> capabilities;
-  late final String? manufacturer;
-  late final String? PKGSI2;
-  late final String? orderState;
-  late final String? account;
-  late final String? PK;
-  late final String? PKGSI1;
-  late final String? type;
-  late final String? exposure;
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:xube_client/src/utils/parse_util.dart';
 
-  Device.fromJson(Map<String, dynamic> json) {
-    SKGSI1 = json['SK_GSI1'];
-    generation = json['generation'];
-    currentConfig = json['currentConfig'];
-    SKGSI2 = json['SK_GSI2'];
-    name = json['name'];
-    state = json['state'];
-    v = json['v'];
-    files = json['files'];
-    SK = json['SK'];
-    id = json['id'];
-    batch = json['batch'];
-    model = json['model'];
-    version = json['version'];
-    creator = json['creator'];
-    manufactured = json['manufactured'];
-    config = json['config'];
-    created = json['created'];
-    updated = json['updated'];
-    deviceModel = json['deviceModel'];
-    vComponent = json['v_Component'];
-    make = json['make'];
-    base = json['base'];
-    capabilities = json['capabilities'];
-    manufacturer = json['manufacturer'];
-    PKGSI2 = json['PK_GSI2'];
-    orderState = json['orderState'];
-    account = json['account'];
-    PK = json['PK'];
-    PKGSI1 = json['PK_GSI1'];
-    type = json['type'];
-    exposure = json['exposure'];
-  }
+import 'device_status/device_status.dart';
 
-  Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['SK_GSI1'] = SKGSI1;
-    _data['generation'] = generation;
-    _data['currentConfig'] = currentConfig;
-    _data['SK_GSI2'] = SKGSI2;
-    _data['name'] = name;
-    _data['state'] = state;
-    _data['v'] = v;
-    _data['files'] = files;
-    _data['SK'] = SK;
-    _data['id'] = id;
-    _data['batch'] = batch;
-    _data['model'] = model;
-    _data['version'] = version;
-    _data['creator'] = creator;
-    _data['manufactured'] = manufactured;
-    _data['config'] = config;
-    _data['created'] = created;
-    _data['updated'] = updated;
-    _data['deviceModel'] = deviceModel;
-    _data['v_Component'] = vComponent;
-    _data['make'] = make;
-    _data['base'] = base;
-    _data['capabilities'] = capabilities;
-    _data['manufacturer'] = manufacturer;
-    _data['PK_GSI2'] = PKGSI2;
-    _data['orderState'] = orderState;
-    _data['account'] = account;
-    _data['PK'] = PK;
-    _data['PK_GSI1'] = PKGSI1;
-    _data['type'] = type;
-    _data['exposure'] = exposure;
-    return _data;
-  }
+part 'device.freezed.dart';
+part 'device.g.dart';
+
+@freezed
+class Device with _$Device {
+  factory Device({
+    List<Map<String, dynamic>>? links,
+    String? updater,
+    List<Map<String, dynamic>>? updates,
+    String? sKGSI1,
+    Map<String, dynamic>? currentConfig,
+    String? generation,
+    String? sKGSI2,
+    DeviceStatus? status,
+    String? name,
+    String? state,
+    Map<String, dynamic>? files,
+    String? v,
+    String? sK,
+    String? id,
+    String? batch,
+    String? model,
+    @JsonKey(fromJson: ParseUtil.toInt) @Default(1) int version,
+    String? creator,
+    String? manufactured,
+    Map<String, dynamic>? config,
+    String? created,
+    String? deviceModel,
+    String? vComponent,
+    Map<String, dynamic>? base,
+    String? make,
+    Map<String, dynamic>? capabilities,
+    String? updated,
+    String? pKGSI2,
+    String? manufacturer,
+    String? orderState,
+    String? account,
+    String? pK,
+    String? pKGSI1,
+    String? exposure,
+    String? type,
+  }) = _Device;
+
+  factory Device.fromJson(Map<String, dynamic> json) => _$DeviceFromJson(json);
 }

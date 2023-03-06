@@ -50,8 +50,7 @@ class XubeClientDevice {
 
     if (items.isNotEmpty) {
       devices = items.map((e) => Device.fromJson(e)).toList()
-        ..sort((a, b) => (int.parse(b.version ?? '0'))
-            .compareTo(int.parse(a.version ?? '0')));
+        ..sort((a, b) => (b.version).compareTo(a.version));
       return devices.first;
     }
     return null;
