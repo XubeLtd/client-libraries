@@ -1,6 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:xube_client/src/utils/parse_util.dart';
 
+import 'status_option.dart';
+
 part 'component_status_entry.freezed.dart';
 part 'component_status_entry.g.dart';
 
@@ -8,9 +10,9 @@ part 'component_status_entry.g.dart';
 class ComponentStatusEntry with _$ComponentStatusEntry {
   factory ComponentStatusEntry({
     String? occured,
-    required String state,
+    @JsonKey(fromJson: statusOptionFromJson) required StatusOption state,
     required String property,
-    required String value,
+    @JsonKey(fromJson: ParseUtil.intToString) required String value,
     String? message,
   }) = _ComponentStatusEntry;
 
