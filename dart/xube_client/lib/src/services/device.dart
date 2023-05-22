@@ -165,4 +165,25 @@ class XubeClientDevice {
       rethrow;
     }
   }
+
+  Future<void> acceptFirmwareUpdate({required String deviceId}) async {
+    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
+      return;
+    }
+
+    const url = '/devices/firmware/accept';
+
+    try {
+      final responseData = await submit(
+        data: {"device": deviceId},
+        url: url,
+        authToken: _auth.token,
+        method: 'post',
+      );
+
+      log('responseData: $responseData');
+    } catch (error) {
+      rethrow;
+    }
+  }
 }

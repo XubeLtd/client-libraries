@@ -48,3 +48,8 @@ class Device with _$Device {
 
   factory Device.fromJson(Map<String, dynamic> json) => _$DeviceFromJson(json);
 }
+
+/* 
+1. Clear devices from account: DEMO
+2. Create new devices with the updated device model/schema that includes the 'expected' field
+*/
