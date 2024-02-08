@@ -4,12 +4,12 @@ import 'package:xube_client/src/utils/subscription_manager.dart';
 import 'package:xube_client/xube_client.dart';
 import 'dart:convert';
 
-class XubeClientComponentDataEndpoint {
+class XubeClientDataEndpoint {
   final WebSocketChannel _channel;
   final XubeClientAuth _auth;
   final SubscriptionManager _subscriptionManager;
 
-  XubeClientComponentDataEndpoint({
+  XubeClientDataEndpoint({
     required WebSocketChannel channel,
     required XubeClientAuth auth,
     SubscriptionManager? subscriptionManager,
@@ -23,7 +23,7 @@ class XubeClientComponentDataEndpoint {
       json.encode({
         "action": "Unsubscribe",
         "format": "View",
-        "contextKey": "COMPONENT-DATA-ENDPOINT",
+        "contextKey": "DATA-ENDPOINT",
         "contextId": "CURRENT",
         "typeKey": "ACCOUNT",
         "typeId": accountId,
@@ -32,21 +32,21 @@ class XubeClientComponentDataEndpoint {
 
     _subscriptionManager.unsubscribe(
       format: "View",
-      contextKey: "COMPONENT-DATA-ENDPOINT",
+      contextKey: "DATA-ENDPOINT",
       contextId: "CURRENT",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
   }
 
-  Stream? getComponentDataEndpointStream(String accountId) {
+  Stream? getDataEndpointStream(String accountId) {
     if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
       return null;
     }
 
     var stream = _subscriptionManager.findStreamById(
       format: "View",
-      contextKey: "COMPONENT-DATA-ENDPOINT",
+      contextKey: "DATA-ENDPOINT",
       contextId: "CURRENT",
       typeKey: "ACCOUNT",
       typeId: accountId,
@@ -58,7 +58,7 @@ class XubeClientComponentDataEndpoint {
       json.encode({
         "action": "Subscribe",
         "format": "View",
-        "contextKey": "COMPONENT-DATA-ENDPOINT",
+        "contextKey": "DATA-ENDPOINT",
         "contextId": "CURRENT",
         "typeKey": "ACCOUNT",
         "typeId": accountId,
@@ -67,7 +67,7 @@ class XubeClientComponentDataEndpoint {
 
     _subscriptionManager.createSubscription(
       format: "View",
-      contextKey: "COMPONENT-DATA-ENDPOINT",
+      contextKey: "DATA-ENDPOINT",
       contextId: "CURRENT",
       typeKey: "ACCOUNT",
       typeId: accountId,
@@ -75,13 +75,13 @@ class XubeClientComponentDataEndpoint {
 
     stream = _subscriptionManager.findStreamById(
       format: "View",
-      contextKey: "COMPONENT-DATA-ENDPOINT",
+      contextKey: "DATA-ENDPOINT",
       contextId: "CURRENT",
       typeKey: "ACCOUNT",
       typeId: accountId,
     );
 
-    log('getComponentDataEndpointStream: $stream');
+    log('getDataEndpointStream: $stream');
     return stream;
   }
 

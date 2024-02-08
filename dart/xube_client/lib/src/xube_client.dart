@@ -10,7 +10,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/services/account_devices.dart';
 import 'package:xube_client/src/services/code.dart';
 import 'package:xube_client/src/services/codes.dart';
-import 'package:xube_client/src/services/component_data_endpoint.dart';
+import 'package:xube_client/src/services/data_endpoint.dart';
 import 'package:xube_client/src/services/components.dart';
 import 'package:xube_client/src/services/devices.dart';
 import 'package:xube_client/src/services/account_components.dart';
@@ -48,7 +48,7 @@ class XubeClient {
   late final XubeClientAccountComponents _accountComponents;
   late final XubeClientCodes _codes;
   late final XubeClientCode _code;
-  late final XubeClientComponentDataEndpoint _componentDataEndpoint;
+  late final XubeClientDataEndpoint _dataEndpoint;
   late final XubeClientAccountDevices _accountDevices;
   late final XubeClientGroups _groups;
   late final XubeClientGroup _group;
@@ -67,8 +67,7 @@ class XubeClient {
   XubeClientAccountComponents get accountComponents => _accountComponents;
   XubeClientCodes get codes => _codes;
   XubeClientCode get code => _code;
-  XubeClientComponentDataEndpoint get componentDataEndpoint =>
-      _componentDataEndpoint;
+  XubeClientDataEndpoint get dataEndpoint => _dataEndpoint;
   XubeClientAccountDevices get accountDevices => _accountDevices;
   XubeClientGroups get groups => _groups;
   XubeClientGroup get group => _group;
@@ -89,7 +88,7 @@ class XubeClient {
     XubeClientAccountComponents? accountComponents,
     XubeClientCodes? codes,
     XubeClientCode? code,
-    XubeClientComponentDataEndpoint? componentDataEndpoint,
+    XubeClientDataEndpoint? dataEndpoint,
     XubeClientAccountDevices? accountDevices,
     XubeClientGroups? groups,
     XubeClientGroup? group,
@@ -123,8 +122,8 @@ class XubeClient {
           XubeClientAccountComponents(channel: _channel, auth: _auth);
       _codes = codes ?? XubeClientCodes(channel: _channel, auth: _auth);
       _code = code ?? XubeClientCode(channel: _channel, auth: _auth);
-      _componentDataEndpoint = componentDataEndpoint ??
-          XubeClientComponentDataEndpoint(channel: _channel, auth: _auth);
+      _dataEndpoint = dataEndpoint ??
+          XubeClientDataEndpoint(channel: _channel, auth: _auth);
       _accountDevices = accountDevices ??
           XubeClientAccountDevices(channel: _channel, auth: _auth);
       _groups = groups ?? XubeClientGroups(channel: _channel, auth: _auth);
@@ -133,11 +132,11 @@ class XubeClient {
   }
 
   _initSocket(WebSocketChannel? channel, String authToken) {
-    log('initSocket $authToken');
+    // log('initSocket $authToken');
 
     _channel = channel ??
         WebSocketChannel.connect(
-          Uri.parse('wss://dev.socket.xube.io/subscriptions?token=$authToken'),
+          Uri.parse('wss://socket.jez.xube.dev/subscriptions?token=$authToken'),
         );
 
     _channel.stream.listen((event) {

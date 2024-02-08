@@ -14,7 +14,7 @@ Future<dynamic> submit({
   String message = '';
   String title = 'Oops, something went wrong!';
 
-  final tempUrl = 'https://dev.api.xube.io$url';
+  final tempUrl = 'https://api.jez.xube.dev$url';
 
   try {
     Response<dynamic>? response;

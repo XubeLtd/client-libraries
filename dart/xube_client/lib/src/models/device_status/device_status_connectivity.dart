@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:xube_client/src/utils/parse_util.dart';
 
 import 'device_status_connectivity_internet.dart';
 import 'device_status_connectivity_cellular.dart';

@@ -32,7 +32,7 @@ void main() async {
 
   test('Account subscription', () async {
     final channel = WebSocketChannel.connect(
-      Uri.parse('wss://dev.socket.xube.io/subscriptions'),
+      Uri.parse('wss://socket.jez.xube.dev/subscriptions'),
     );
     expect(channel, isNotNull);
 
