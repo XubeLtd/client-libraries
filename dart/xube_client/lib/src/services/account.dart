@@ -1,88 +1,36 @@
 import 'dart:developer';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:get_it/get_it.dart';
+import 'package:xube_client/src/models/account.dart';
+import 'package:xube_client/src/services/base_client.dart';
 import 'package:xube_client/src/utils/subscription_manager.dart';
+import 'package:xube_client/src/utils/xube_log.dart';
 import 'package:xube_client/xube_client.dart';
-import 'dart:convert';
 
-class XubeClientAccount {
-  final WebSocketChannel _channel;
-  final XubeClientAuth _auth;
+class XubeClientAccount extends BaseClient {
   final SubscriptionManager _subscriptionManager;
+  final XubeLog _log;
 
   XubeClientAccount({
-    required WebSocketChannel channel,
-    required XubeClientAuth auth,
     SubscriptionManager? subscriptionManager,
-  })  : _channel = channel,
-        _auth = auth,
-        _subscriptionManager =
-            subscriptionManager ?? SubscriptionManager.instance;
+  })  : _subscriptionManager =
+            subscriptionManager ?? GetIt.I<SubscriptionManager>(),
+        _log = XubeLog.getInstance();
 
   void unsubscribe(String accountId) {
-    _channel.sink.add(
-      json.encode({
-        "action": "Unsubscribe",
-        "format": "View",
-        "contextKey": "ACCOUNT",
-        "contextId": accountId,
-        "typeKey": "ACCOUNT",
-        "typeId": accountId,
-      }),
-    );
-
-    _subscriptionManager.unsubscribe(
-      format: "View",
-      contextKey: "ACCOUNT",
-      contextId: accountId,
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-    );
+    _subscriptionManager.unsubscribe(path: getXubeAccountPath(accountId));
   }
 
-  Stream? getAccountStream(String accountId) {
-    if (!_auth.isAuth || _auth.userId == null || _auth.email == null) {
-      return null;
-    }
+  String getXubeAccountPath(String accountId) {
+    return 'accounts/$accountId';
+  }
 
-    var stream = _subscriptionManager.findStreamById(
-      format: "View",
-      contextKey: "ACCOUNT",
-      contextId: accountId,
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-    );
+  Future<Stream<Account?>?> getAccountStream(String accountId) async {
+    _log.info('Getting user accounts stream for email: $accountId');
 
-    if (stream != null) return stream;
+    String subscriptionPath = getXubeAccountPath(accountId);
+    _log.info('Subscription path: $subscriptionPath');
 
-    _channel.sink.add(
-      json.encode({
-        "action": "Subscribe",
-        "format": "View",
-        "contextKey": "ACCOUNT",
-        "contextId": accountId,
-        "typeKey": "ACCOUNT",
-        "typeId": accountId,
-      }),
-    );
-
-    _subscriptionManager.createSubscription(
-      format: "View",
-      contextKey: "ACCOUNT",
-      contextId: accountId,
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-    );
-
-    stream = _subscriptionManager.findStreamById(
-      format: "View",
-      contextKey: "ACCOUNT",
-      contextId: accountId,
-      typeKey: "ACCOUNT",
-      typeId: accountId,
-    );
-
-    log('getAccountStream: $stream');
-    return stream;
+    return getStream<Account?>(subscriptionPath, Account.fromJson);
   }
 
   Future<void> addUserToAccount(
@@ -96,19 +44,15 @@ class XubeClientAccount {
       if (value) roles.add(key);
     });
 
-    log('here ${_auth.token!}');
-
-    const url = '/account/user';
+    const url = '/accounts/user';
     try {
       final responseData = await submit(
         data: {
           'email': userEmail,
-          'id': accountId,
           'roles': roles,
           'account': accountId,
         },
-        url: url,
-        authToken: _auth.token!,
+        path: url,
       );
 
       log('addUserToAccount responseData: $responseData');

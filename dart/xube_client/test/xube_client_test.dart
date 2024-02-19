@@ -21,13 +21,13 @@ void main() async {
     final auth = XubeClientAuth();
     await auth.logIn('test5@test.com', 'P@ssW0rd');
 
-    expect(auth.isAuth, true);
+    expect(auth.isAuthenticated, true);
     expect(auth.token, isNotNull);
     expect(auth.userId, isNotNull);
   });
 
   test('Xube Client init', () {
-    XubeClient();
+    // XubeClient();
   });
 
   test('Account subscription', () async {

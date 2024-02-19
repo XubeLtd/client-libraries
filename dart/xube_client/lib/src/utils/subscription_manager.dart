@@ -1,127 +1,278 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:xube_client/src/models/subscription_data/subscription_data.dart';
+import 'package:xube_client/src/utils/xube_log.dart';
+import 'package:xube_client/src/xube_client.dart';
 
-class XubeSubscription {
+class XubeSubscription<T> {
   final String id;
-  final _controller = BehaviorSubject();
+  final XubeLog _log;
+  final _controller = BehaviorSubject<T>();
+  final T Function(Map<String, dynamic> data) convertData;
 
-  XubeSubscription({required this.id});
+  XubeSubscription({
+    required this.id,
+    required this.convertData,
+  }) : _log = XubeLog.getInstance();
 
   Stream get stream => _controller.stream;
 
   void addData(dynamic data) {
-    log('Adding data: $data to XubeSubscription $id');
-    _controller.add(data);
+    _log.info('Adding data: $data to XubeSubscription $id');
+
+    T convertedData = convertData(data);
+    _controller.add(convertedData);
   }
 
   void close() {
+    _log.info('Closing XubeSubscription $id');
     _controller.close();
   }
 }
 
+enum SubscriptionState { uninitialized, ready, pending, closed }
+
 class SubscriptionManager {
-  static final SubscriptionManager instance = SubscriptionManager._internal();
+  final String _baseSocketPath;
+  WebSocketChannel? _channel;
+  final XubeLog _log;
+  User? _user;
+  String? _connectionId;
 
   late final Map<String, XubeSubscription> _subscriptions;
 
-  String _formatId({
-    required String format,
-    required String contextKey,
-    required String typeKey,
-    required String typeId,
-    String contextId = '',
-  }) {
-    String id = '$format#$contextKey#$typeKey#$typeId';
-    if (contextId.isNotEmpty) {
-      id += '#$contextId';
+  BehaviorSubject subscriptionStateSubject =
+      BehaviorSubject<SubscriptionState>.seeded(
+          SubscriptionState.uninitialized);
+
+  SubscriptionManager(
+    String baseApiPath,
+    String baseSocketPath,
+    XubeClientAuth auth,
+    XubeLog? log,
+  )   : _baseSocketPath = baseSocketPath,
+        _log = log ?? XubeLog.getInstance(),
+        _subscriptions = {} {
+    _listenToAuthStream(auth);
+  }
+
+  _listenToAuthStream(XubeClientAuth auth) {
+    auth.authStream.listen((user) {
+      _user = user;
+
+      if (_channel != null) {
+        _log.info('Socket is already being managed. Ignoring');
+        return;
+      }
+
+      _initSocket();
+    });
+  }
+
+  _initSocket() {
+    String? authToken = _user?.token;
+
+    if (authToken == null) {
+      _log.warning('No token found');
+      teardown();
+      return;
     }
 
-    return id;
-  }
+    try {
+      _channel = _channel ??
+          WebSocketChannel.connect(
+            Uri.parse('$_baseSocketPath?token=$authToken'),
+          );
 
-  SubscriptionManager._internal() {
-    _subscriptions = {};
-  }
+      subscriptionStateSubject.sink.add(SubscriptionState.pending);
+    } catch (e) {
+      _log.error('Could not connect to socket', error: e);
+      teardown();
+      return;
+    }
 
-  Stream? findStreamById({
-    required String format,
-    required String contextKey,
-    required String typeKey,
-    required String typeId,
-    String contextId = '',
-  }) {
-    final id = _formatId(
-      format: format,
-      contextKey: contextKey,
-      typeKey: typeKey,
-      typeId: typeId,
-      contextId: contextId,
+    _channel?.stream.listen(
+      (event) {
+        dynamic decodedDelivery = jsonDecode(event);
+
+        if (decodedDelivery['connectionId'] != null) {
+          _connectionId = decodedDelivery['connectionId'];
+          subscriptionStateSubject.sink.add(SubscriptionState.ready);
+          return;
+        }
+
+        SubscriptionDelivery? subscriptionDelivery =
+            SubscriptionDelivery.fromJson(decodedDelivery, log: _log);
+
+        if (subscriptionDelivery == null) {
+          _log.critical(
+              'SubscriptionManager - Could not generate Subscription delivery from $event');
+          return;
+        }
+
+        for (String subscriptionPath
+            in subscriptionDelivery.subscriptionPaths) {
+          feed(path: subscriptionPath, data: subscriptionDelivery.data);
+        }
+      },
+      onDone: () {
+        _log.info('Socket closed. Attempting to reconnect.');
+        subscriptionStateSubject.add(SubscriptionState.uninitialized);
+        _initSocket();
+      },
+      onError: (error) {
+        _log.error('Socket error: $error');
+        teardown();
+      },
     );
 
-    return _subscriptions[id]?.stream;
+    _channel?.sink.add(""); //Triggers the connection id to be returned
+  }
+
+  void teardown() {
+    _log.info('Tearing down subscription manager');
+
+    subscriptionStateSubject.add(SubscriptionState.closed);
+
+    _subscriptions.forEach((id, xubeSubscription) {
+      xubeSubscription.close();
+    });
+    _subscriptions.clear();
+
+    _channel?.sink.close();
+    _channel = null;
+  }
+
+  String _formatId({
+    required String path,
+  }) {
+    return path;
+  }
+
+  Stream<T>? findStreamById<T>({required String path}) {
+    final id = _formatId(
+      path: path.toLowerCase(),
+    );
+
+    Stream? stream = _subscriptions[id]?.stream;
+
+    if (stream != null && stream is Stream<T>) {
+      return stream;
+    }
+
+    _log.warning('No valid stream found for $id');
+
+    return null;
   }
 
   void feed({
-    required String format,
-    required String contextKey,
-    required String typeKey,
-    required String typeId,
-    String contextId = '',
+    required String path,
     dynamic data,
   }) {
-    final id = _formatId(
-      format: format,
-      contextKey: contextKey,
-      typeKey: typeKey,
-      typeId: typeId,
-      contextId: contextId,
-    );
+    final id = _formatId(path: path);
 
     _subscriptions[id]?.addData(data);
   }
 
-  void createSubscription({
-    required String format,
-    required String contextKey,
-    required String typeKey,
-    required String typeId,
-    String contextId = '',
+  XubeSubscription<T> saveSubscription<T>({
+    required String path,
+    required T Function(Map<String, dynamic> data) convertData,
   }) {
-    final id = _formatId(
-      format: format,
-      contextKey: contextKey,
-      typeKey: typeKey,
-      typeId: typeId,
-      contextId: contextId,
+    final id = _formatId(path: path);
+
+    _log.info('Adding new XubeSubscription $id to the Subscription Manager');
+
+    final newSubscription = XubeSubscription<T>(
+      id: id,
+      convertData: convertData,
     );
-
-    log('Adding new XubeSubscription $id to the Subscription Manager');
-
-    final newSubscription = XubeSubscription(id: id);
 
     _subscriptions.putIfAbsent(id, () => newSubscription);
+
+    return newSubscription;
   }
 
-  void unsubscribe({
-    required String format,
-    required String contextKey,
-    required String typeKey,
-    required String typeId,
-    String contextId = '',
+  Stream<T> subscribe<T>({
+    required String path,
+    required T Function(Map<String, dynamic> data) convertData,
   }) {
-    final id = _formatId(
-      format: format,
-      contextKey: contextKey,
-      typeKey: typeKey,
-      typeId: typeId,
-      contextId: contextId,
+    _log.info('Subscription Manager - subscribing to path: $path');
+
+    XubeSubscription<T> subscription = saveSubscription<T>(
+      path: path,
+      convertData: convertData,
     );
+
+    if (_connectionId == null) {
+      _log.error('No connection id found');
+      return subscription._controller.stream;
+    }
+
+    final id = _formatId(path: path);
+
+    try {
+      Dio _dio = GetIt.I<Dio>();
+
+      _dio.post(
+        path,
+        data: {
+          'connectionId': _connectionId,
+        },
+      ).then((response) {
+        if ((response.statusCode ?? HttpStatus.internalServerError) >=
+            HttpStatus.multipleChoices) {
+          _log.error(
+            'Could not subscribe to $id on server side',
+            error: response,
+          );
+          return null;
+        }
+
+        dynamic object = jsonDecode(response.data);
+        T data = convertData(object);
+        subscription._controller.add(data);
+      });
+    } catch (e) {
+      _log.error('Could not subscribe to $id. Error: $e');
+    }
+
+    return subscription._controller.stream;
+  }
+
+  Future<void> unsubscribe({
+    required String path,
+  }) async {
+    final id = _formatId(path: path);
+
+    Dio _dio = GetIt.I<Dio>();
+    Response response = await _dio.delete(path);
+
+    int? statusCode = response.statusCode;
 
     _subscriptions[id]?.close();
     _subscriptions.remove(id);
 
-    log('Subscription Manager - unsubscribe $id');
+    if (statusCode == null) {
+      _log.error(
+        'No status code received when unsubscribing from $path',
+        error: response,
+      );
+      _log.warning('Unsubscription may have only been partially successful');
+      return;
+    }
+
+    if (statusCode >= HttpStatus.multipleChoices) {
+      _log.warning('Server could not complete unsubscription from $id',
+          error: response);
+      return;
+    }
+
+    _log.info('Subscription Manager - unsubscribed from $id');
   }
 }
