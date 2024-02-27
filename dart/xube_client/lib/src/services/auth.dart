@@ -71,13 +71,10 @@ class XubeClientAuth {
 
     const path = '/auth/sign-up';
     try {
-      final responseData = await submit(
-        data: {
-          'email': email,
-          'password': password,
-        },
-        path: path,
-      );
+      final responseData = await submit(data: {
+        'email': email,
+        'password': password,
+      }, path: path, requiresAuthentication: false);
 
       return responseData;
     } catch (error) {
@@ -87,7 +84,7 @@ class XubeClientAuth {
   }
 
   Future<void> logIn(String email, String password) async {
-    const path = '/user/log-in';
+    const path = '/auth/log-in';
 
     try {
       final responseData = await submit(
@@ -96,10 +93,16 @@ class XubeClientAuth {
           'password': password,
         },
         path: path,
+        requiresAuthentication: false,
       );
 
-      final token = responseData['token'];
-      final refreshToken = responseData['refreshToken'];
+      final String token = responseData['token'] ?? '';
+      final String refreshToken = responseData['refreshToken'] ?? '';
+
+      if (token.isEmpty || refreshToken.isEmpty) {
+        _log.error('Token or refresh token is empty');
+        return;
+      }
 
       _setUserData(
         token,
@@ -186,6 +189,10 @@ class XubeClientAuth {
     String? refreshToken,
     String? email,
   }) async {
+    if (token.isEmpty) {
+      _log.error('Token is empty or null');
+    }
+
     _token = token;
     _refreshToken = refreshToken ?? _refreshToken;
     _email = email ?? _email;

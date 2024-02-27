@@ -9,6 +9,7 @@ Future<dynamic> submit({
   required Map<String, dynamic> data,
   required String path,
   String method = 'post',
+  bool requiresAuthentication = true,
   XubeLog? log,
 }) async {
   dynamic resultData;
@@ -25,15 +26,17 @@ Future<dynamic> submit({
     //Consider = Future: Create a buffer of requests that get sent out when authentication is confirmed
     String? authToken = GetIt.I<XubeClientAuth>().token;
 
-    if (authToken == null) {
+    if (authToken == null && requiresAuthentication) {
       log.warning('User is not authenticated.');
       return false;
     }
 
-    final options = Options(
-      headers: {
-        'Authorization': authToken,
-      },
+    Options options = Options(
+      headers: requiresAuthentication
+          ? {
+              'Authorization': authToken,
+            }
+          : null,
     );
 
     switch (method.toLowerCase()) {
@@ -83,9 +86,9 @@ Future<dynamic> submit({
     hasError = true;
     message = '$e';
 
-    if (e is DioError) {
-      message = e.message;
-    }
+    // if (e is DioException) {
+    // message = e.message ?? 'An error occurred';
+    // }
 
     log.error('Error occurred during submit. ${e.toString()}');
   }

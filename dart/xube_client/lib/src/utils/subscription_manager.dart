@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -49,21 +50,23 @@ class SubscriptionManager {
 
   BehaviorSubject subscriptionStateSubject =
       BehaviorSubject<SubscriptionState>.seeded(
-          SubscriptionState.uninitialized);
+    SubscriptionState.uninitialized,
+  );
+
+  StreamSubscription? socketSubscription;
 
   SubscriptionManager(
     String baseApiPath,
     String baseSocketPath,
-    XubeClientAuth auth,
     XubeLog? log,
   )   : _baseSocketPath = baseSocketPath,
         _log = log ?? XubeLog.getInstance(),
         _subscriptions = {} {
-    _listenToAuthStream(auth);
+    _listenToAuthStream();
   }
 
-  _listenToAuthStream(XubeClientAuth auth) {
-    auth.authStream.listen((user) {
+  _listenToAuthStream() {
+    GetIt.I<XubeClientAuth>().authStream.listen((user) {
       _user = user;
 
       if (_channel != null) {
@@ -75,7 +78,7 @@ class SubscriptionManager {
     });
   }
 
-  _initSocket() {
+  _initSocket() async {
     String? authToken = _user?.token;
 
     if (authToken == null) {
@@ -85,10 +88,63 @@ class SubscriptionManager {
     }
 
     try {
-      _channel = _channel ??
-          WebSocketChannel.connect(
-            Uri.parse('$_baseSocketPath?token=$authToken'),
-          );
+      Random r = Random();
+      String key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
+
+      WebSocket socket = await WebSocket.connect(
+        '$_baseSocketPath?token=$authToken',
+        headers: {
+          'Connection': 'Upgrade',
+          'Upgrade': 'websocket',
+          'Sec-WebSocket-Version': '13',
+          'Sec-WebSocket-Key': key,
+          'Sec-WebSocket-Extensions':
+              'permessage-deflate; client_max_window_bits',
+          'Authorization': authToken,
+        },
+      );
+
+      socketSubscription = socket.listen(
+        (event) {
+          _log.info('Received event: $event');
+          dynamic decodedDelivery = jsonDecode(event);
+
+          if (decodedDelivery['connectionId'] != null) {
+            _connectionId = decodedDelivery['connectionId'];
+            subscriptionStateSubject.sink.add(SubscriptionState.ready);
+            return;
+          }
+
+          SubscriptionDelivery? subscriptionDelivery =
+              SubscriptionDelivery.fromJson(decodedDelivery, log: _log);
+
+          if (subscriptionDelivery == null) {
+            _log.critical(
+                'SubscriptionManager - Could not generate Subscription delivery from $event');
+            return;
+          }
+
+          for (String subscriptionPath
+              in subscriptionDelivery.subscriptionPaths) {
+            feed(path: subscriptionPath, data: subscriptionDelivery.data);
+          }
+        },
+        onDone: () {
+          _log.info('Socket closed. Attempting to reconnect.');
+          subscriptionStateSubject.add(SubscriptionState.uninitialized);
+
+          // !This needs to be a decreasing frequency attempt to connect instead of retrying immediately
+          _initSocket();
+        },
+        onError: (error) {
+          _log.error('Socket error: $error');
+          teardown();
+        },
+      );
+
+      socket.add(
+        'Hello!',
+      ); //Random 'forbidden' message to get the connection id from backend
 
       subscriptionStateSubject.sink.add(SubscriptionState.pending);
     } catch (e) {
@@ -99,6 +155,7 @@ class SubscriptionManager {
 
     _channel?.stream.listen(
       (event) {
+        _log.info('Received event: $event');
         dynamic decodedDelivery = jsonDecode(event);
 
         if (decodedDelivery['connectionId'] != null) {
@@ -124,7 +181,8 @@ class SubscriptionManager {
       onDone: () {
         _log.info('Socket closed. Attempting to reconnect.');
         subscriptionStateSubject.add(SubscriptionState.uninitialized);
-        _initSocket();
+        // _initSocket();
+        // !This needs to be a decreasing frequency attempt to connect instead of retrying immediately
       },
       onError: (error) {
         _log.error('Socket error: $error');
@@ -132,7 +190,7 @@ class SubscriptionManager {
       },
     );
 
-    _channel?.sink.add(""); //Triggers the connection id to be returned
+    // _channel?.sink.add(""); //Triggers the connection id to be returned
   }
 
   void teardown() {
