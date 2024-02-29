@@ -34,7 +34,7 @@ class XubeClient {
     log ??= XubeLog.getInstance();
     log.initialize(
         applicationVersion: '0.0.1',
-        platformDiagnosticsUrl: '/app/diagnostics',
+        platformDiagnosticsUrl: '/diagnostics',
         minimumPrintLevel: 0,
         minimumSendDiagnosticsLevel: XubeLogLevel.error);
     log.info('Initializing Xube Client');

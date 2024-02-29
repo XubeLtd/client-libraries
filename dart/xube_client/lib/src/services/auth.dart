@@ -35,7 +35,6 @@ class XubeClientAuth {
   static const userDataKey = 'userData';
 
   final XubeLog _log;
-  final Dio _dio;
 
   final _authStreamController = StreamController<User?>.broadcast();
   Stream<User?> get authStream => _authStreamController.stream;
@@ -55,9 +54,9 @@ class XubeClientAuth {
   String? get email => _email;
   String? get userId => _userId;
 
-  XubeClientAuth()
-      : _dio = GetIt.I<Dio>(),
-        _log = XubeLog.getInstance();
+  XubeClientAuth() : _log = XubeLog.getInstance() {
+    _setAuthForRequests();
+  }
 
   Future<dynamic> signUp(
     String email,
@@ -166,7 +165,7 @@ class XubeClientAuth {
   Future<void> _refreshLogin() async {
     String path = "/auth/refresh";
 
-    await _dio.post(
+    await GetIt.I<Dio>().post(
       path,
       data: {
         "refreshToken": _refreshToken,
@@ -218,6 +217,18 @@ class XubeClientAuth {
     );
 
     prefs.then((value) => value.setString(userDataKey, userData));
+  }
+
+  void _setAuthForRequests() {
+    GetIt.I<Dio>().interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (isAuthenticated) {
+          options.headers['Authorization'] = 'Bearer $_token';
+        }
+
+        return handler.next(options);
+      },
+    ));
   }
 
   Future<User?> _fetchUserData() async {

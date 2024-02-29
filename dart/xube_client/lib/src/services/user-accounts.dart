@@ -12,9 +12,9 @@ class XubeClientUserAccounts extends BaseClient {
   final SubscriptionManager _subscriptionManager;
   final XubeLog _log;
 
-  static const String _userKey = 'user';
+  static const String _userKey = '{user}';
   static const String _userAccountsSubscriptionUrl =
-      '/accounts/{$_userKey}/subscribe';
+      '/accounts/users/{$_userKey}/subscribe';
 
   XubeClientUserAccounts({
     SubscriptionManager? subscriptionManager,

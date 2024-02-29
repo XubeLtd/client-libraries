@@ -41,8 +41,8 @@ enum SubscriptionState { uninitialized, ready, pending, closed }
 
 class SubscriptionManager {
   final String _baseSocketPath;
-  WebSocketChannel? _channel;
   final XubeLog _log;
+  WebSocket? _socket;
   User? _user;
   String? _connectionId;
 
@@ -62,6 +62,7 @@ class SubscriptionManager {
   )   : _baseSocketPath = baseSocketPath,
         _log = log ?? XubeLog.getInstance(),
         _subscriptions = {} {
+    _setConnectionIdForSubscribeRequests();
     _listenToAuthStream();
   }
 
@@ -69,7 +70,7 @@ class SubscriptionManager {
     GetIt.I<XubeClientAuth>().authStream.listen((user) {
       _user = user;
 
-      if (_channel != null) {
+      if (_socket != null) {
         _log.info('Socket is already being managed. Ignoring');
         return;
       }
@@ -91,7 +92,7 @@ class SubscriptionManager {
       Random r = Random();
       String key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
 
-      WebSocket socket = await WebSocket.connect(
+      _socket = await WebSocket.connect(
         '$_baseSocketPath?token=$authToken',
         headers: {
           'Connection': 'Upgrade',
@@ -104,47 +105,16 @@ class SubscriptionManager {
         },
       );
 
-      socketSubscription = socket.listen(
-        (event) {
-          _log.info('Received event: $event');
-          dynamic decodedDelivery = jsonDecode(event);
-
-          if (decodedDelivery['connectionId'] != null) {
-            _connectionId = decodedDelivery['connectionId'];
-            subscriptionStateSubject.sink.add(SubscriptionState.ready);
-            return;
-          }
-
-          SubscriptionDelivery? subscriptionDelivery =
-              SubscriptionDelivery.fromJson(decodedDelivery, log: _log);
-
-          if (subscriptionDelivery == null) {
-            _log.critical(
-                'SubscriptionManager - Could not generate Subscription delivery from $event');
-            return;
-          }
-
-          for (String subscriptionPath
-              in subscriptionDelivery.subscriptionPaths) {
-            feed(path: subscriptionPath, data: subscriptionDelivery.data);
-          }
-        },
-        onDone: () {
-          _log.info('Socket closed. Attempting to reconnect.');
-          subscriptionStateSubject.add(SubscriptionState.uninitialized);
-
-          // !This needs to be a decreasing frequency attempt to connect instead of retrying immediately
-          _initSocket();
-        },
+      socketSubscription = _socket?.listen(
+        handleSocketEvent,
+        onDone: handleSocketDone,
         onError: (error) {
           _log.error('Socket error: $error');
           teardown();
         },
       );
 
-      socket.add(
-        'Hello!',
-      ); //Random 'forbidden' message to get the connection id from backend
+      triggerSocketConnectionIdResponse();
 
       subscriptionStateSubject.sink.add(SubscriptionState.pending);
     } catch (e) {
@@ -152,48 +122,58 @@ class SubscriptionManager {
       teardown();
       return;
     }
-
-    _channel?.stream.listen(
-      (event) {
-        _log.info('Received event: $event');
-        dynamic decodedDelivery = jsonDecode(event);
-
-        if (decodedDelivery['connectionId'] != null) {
-          _connectionId = decodedDelivery['connectionId'];
-          subscriptionStateSubject.sink.add(SubscriptionState.ready);
-          return;
-        }
-
-        SubscriptionDelivery? subscriptionDelivery =
-            SubscriptionDelivery.fromJson(decodedDelivery, log: _log);
-
-        if (subscriptionDelivery == null) {
-          _log.critical(
-              'SubscriptionManager - Could not generate Subscription delivery from $event');
-          return;
-        }
-
-        for (String subscriptionPath
-            in subscriptionDelivery.subscriptionPaths) {
-          feed(path: subscriptionPath, data: subscriptionDelivery.data);
-        }
-      },
-      onDone: () {
-        _log.info('Socket closed. Attempting to reconnect.');
-        subscriptionStateSubject.add(SubscriptionState.uninitialized);
-        // _initSocket();
-        // !This needs to be a decreasing frequency attempt to connect instead of retrying immediately
-      },
-      onError: (error) {
-        _log.error('Socket error: $error');
-        teardown();
-      },
-    );
-
-    // _channel?.sink.add(""); //Triggers the connection id to be returned
   }
 
-  void teardown() {
+  void triggerSocketConnectionIdResponse() {
+    _socket?.add(
+      'Hello!',
+    ); //Random 'forbidden' message to get the connection id from backend
+  }
+
+  void _setConnectionIdForSubscribeRequests() {
+    GetIt.I<Dio>().interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (_connectionId != null && options.path.endsWith('subscribe')) {
+          options.data ??= {};
+          options.data['destination'] = _connectionId;
+        }
+
+        return handler.next(options);
+      },
+    ));
+  }
+
+  void handleSocketDone() {
+    _log.info('Socket closed. Attempting to reconnect.');
+    subscriptionStateSubject.add(SubscriptionState.uninitialized);
+    _initSocket();
+  }
+
+  void handleSocketEvent(event) async {
+    _log.info('Received event: $event');
+    dynamic decodedDelivery = jsonDecode(event);
+
+    if (decodedDelivery['connectionId'] != null) {
+      _connectionId = decodedDelivery['connectionId'];
+      subscriptionStateSubject.sink.add(SubscriptionState.ready);
+      return;
+    }
+
+    SubscriptionDelivery? subscriptionDelivery =
+        SubscriptionDelivery.fromJson(decodedDelivery, log: _log);
+
+    if (subscriptionDelivery == null) {
+      _log.critical(
+          'SubscriptionManager - Could not generate Subscription delivery from $event');
+      return;
+    }
+
+    for (String subscriptionPath in subscriptionDelivery.subscriptionPaths) {
+      feed(path: subscriptionPath, data: subscriptionDelivery.data);
+    }
+  }
+
+  void teardown() async {
     _log.info('Tearing down subscription manager');
 
     subscriptionStateSubject.add(SubscriptionState.closed);
@@ -203,8 +183,8 @@ class SubscriptionManager {
     });
     _subscriptions.clear();
 
-    _channel?.sink.close();
-    _channel = null;
+    await _socket?.close();
+    _socket = null;
   }
 
   String _formatId({
@@ -267,40 +247,61 @@ class SubscriptionManager {
       convertData: convertData,
     );
 
-    if (_connectionId == null) {
-      _log.error('No connection id found');
-      return subscription._controller.stream;
-    }
-
-    final id = _formatId(path: path);
-
     try {
-      Dio _dio = GetIt.I<Dio>();
+      StreamSubscription? subscribeStateStreamSubscription;
 
-      _dio.post(
-        path,
-        data: {
-          'connectionId': _connectionId,
+      subscribeStateStreamSubscription = subscriptionStateSubject.listen(
+        (event) {
+          if (event == SubscriptionState.ready) {
+            _handleManagerStateReadyToSubscribe<T>(
+              path,
+              subscription,
+              convertData,
+            );
+            subscribeStateStreamSubscription?.cancel();
+          }
         },
-      ).then((response) {
-        if ((response.statusCode ?? HttpStatus.internalServerError) >=
-            HttpStatus.multipleChoices) {
-          _log.error(
-            'Could not subscribe to $id on server side',
-            error: response,
-          );
-          return null;
-        }
-
-        dynamic object = jsonDecode(response.data);
-        T data = convertData(object);
-        subscription._controller.add(data);
-      });
+      );
     } catch (e) {
-      _log.error('Could not subscribe to $id. Error: $e');
+      _log.error('Could not subscribe to path: $path. Error: $e');
     }
 
     return subscription._controller.stream;
+  }
+
+  _handleManagerStateReadyToSubscribe<T>(
+    String path,
+    XubeSubscription subscription,
+    T Function(Map<String, dynamic> data) convertData,
+  ) async {
+    final id = _formatId(path: path);
+
+    _log.info('Subscription Manager - socket is ready. Subscribing to $id');
+    if (_connectionId == null) {
+      _log.error('No connection id found');
+    }
+    Dio _dio = GetIt.I<Dio>();
+
+    try {
+      Response response = await _dio.post(
+        path,
+      );
+
+      if ((response.statusCode ?? HttpStatus.internalServerError) >=
+          HttpStatus.multipleChoices) {
+        _log.error(
+          'Could not subscribe to $id on server side',
+          error: response,
+        );
+        return null;
+      }
+
+      dynamic object = jsonDecode(response.data);
+      T data = convertData(object);
+      subscription._controller.add(data);
+    } catch (e) {
+      _log.error('Could not subscribe to $id', error: e);
+    }
   }
 
   Future<void> unsubscribe({

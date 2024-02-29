@@ -93,8 +93,9 @@ class XubeLog {
     var diagnostics = {
       'level': level,
       'message': message,
-      'origin': 'xube_application',
+      'origin': 'app',
       'version': _applicationVersion,
+      'timestamp': DateTime.now().toIso8601String(),
     };
 
     if (error != null) {
