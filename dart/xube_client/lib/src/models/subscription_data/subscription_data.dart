@@ -22,14 +22,12 @@ class SubscriptionDelivery {
   }) {
     log ??= XubeLog.getInstance();
 
-    List<String>? subscriptionPaths = json[subscriptionPathsField];
+    List<String>? subscriptionPaths =
+        List.from(json[subscriptionPathsField] ?? []);
     String? connectionId = json[connectionIdField];
     dynamic data = json[dataField];
 
-    if (subscriptionPaths == null ||
-        subscriptionPaths.isEmpty ||
-        connectionId == null ||
-        data == null) {
+    if (connectionId == null || data == null) {
       log.error('SubscriptionDelivery.fromJson: Invalid data');
       return null;
     }

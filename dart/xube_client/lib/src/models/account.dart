@@ -1,6 +1,8 @@
 import 'package:xube_client/src/models/base_model.dart';
 import 'package:xube_client/src/utils/xube_log.dart';
 
+const String accountField = "account";
+
 class Account extends BaseModel {
   String name;
 

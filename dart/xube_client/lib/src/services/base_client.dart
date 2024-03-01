@@ -20,7 +20,7 @@ abstract class BaseClient {
   @protected
   Stream<T> getStream<T>(
     String path,
-    T Function(dynamic data) convertData,
+    T Function(List<Map<String, dynamic>> data) convertData,
   ) {
     Stream<T>? stream = _subscriptionManager.findStreamById<T>(path: path);
     if (stream != null) {

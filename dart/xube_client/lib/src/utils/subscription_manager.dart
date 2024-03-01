@@ -15,7 +15,7 @@ class XubeSubscription<T> {
   final String id;
   final XubeLog _log;
   final _controller = BehaviorSubject<T>();
-  final T Function(Map<String, dynamic> data) convertData;
+  final T Function(List<Map<String, dynamic>> data) convertData;
 
   XubeSubscription({
     required this.id,
@@ -153,9 +153,15 @@ class SubscriptionManager {
     _log.info('Received event: $event');
     dynamic decodedDelivery = jsonDecode(event);
 
-    if (decodedDelivery['connectionId'] != null) {
-      _connectionId = decodedDelivery['connectionId'];
+    if (decodedDelivery['connectionId'] != null &&
+        subscriptionStateSubject.value != SubscriptionState.ready) {
+      String newConnectionId = decodedDelivery['connectionId'];
+      setConnectionId(newConnectionId);
       subscriptionStateSubject.sink.add(SubscriptionState.ready);
+    }
+
+    if (decodedDelivery['data'] == null) {
+      _log.info('Event does not contain data. Ignoring');
       return;
     }
 
@@ -170,6 +176,46 @@ class SubscriptionManager {
 
     for (String subscriptionPath in subscriptionDelivery.subscriptionPaths) {
       feed(path: subscriptionPath, data: subscriptionDelivery.data);
+    }
+  }
+
+  void setConnectionId(
+    String newConnectionId,
+  ) async {
+    String? oldConnectionId = _connectionId;
+    _connectionId = newConnectionId;
+
+    if (oldConnectionId == null) {
+      _log.info(
+        'No old connection id found when setting connection id. This is likely the first time the connection id is being set. Skipping refresh.',
+      );
+      return;
+    }
+
+    try {
+      Response response = await GetIt.I<Dio>().post(
+        '/subscriptions/refresh',
+        data: {
+          "oldConnectionId": oldConnectionId,
+          "newConnectionId": newConnectionId
+        },
+      );
+
+      int? statusCode = response.statusCode;
+
+      if (statusCode == null) {
+        _log.error(
+          'No status code received when refreshing connection id',
+          error: response,
+        );
+      } else if (statusCode >= HttpStatus.internalServerError) {
+        _log.error(
+          'Could not refresh connection id',
+          error: response,
+        );
+      }
+    } catch (e) {
+      _log.error('Could not refresh connection id', error: e);
     }
   }
 
@@ -220,7 +266,7 @@ class SubscriptionManager {
 
   XubeSubscription<T> saveSubscription<T>({
     required String path,
-    required T Function(Map<String, dynamic> data) convertData,
+    required T Function(List<Map<String, dynamic>> data) convertData,
   }) {
     final id = _formatId(path: path);
 
@@ -238,7 +284,7 @@ class SubscriptionManager {
 
   Stream<T> subscribe<T>({
     required String path,
-    required T Function(Map<String, dynamic> data) convertData,
+    required T Function(List<Map<String, dynamic>> data) convertData,
   }) {
     _log.info('Subscription Manager - subscribing to path: $path');
 
@@ -272,7 +318,7 @@ class SubscriptionManager {
   _handleManagerStateReadyToSubscribe<T>(
     String path,
     XubeSubscription subscription,
-    T Function(Map<String, dynamic> data) convertData,
+    T Function(List<Map<String, dynamic>> data) convertData,
   ) async {
     final id = _formatId(path: path);
 
@@ -296,9 +342,17 @@ class SubscriptionManager {
         return null;
       }
 
-      dynamic object = jsonDecode(response.data);
-      T data = convertData(object);
-      subscription._controller.add(data);
+      List<Map<String, dynamic>> data;
+
+      if (response.data is Map<String, dynamic>) {
+        data = [response.data];
+      } else if (response.data is List<Map<String, dynamic>>) {
+        data = response.data;
+      } else {
+        data = List<Map<String, dynamic>>.from(response.data);
+      }
+
+      subscription._controller.add(convertData(data));
     } catch (e) {
       _log.error('Could not subscribe to $id', error: e);
     }
