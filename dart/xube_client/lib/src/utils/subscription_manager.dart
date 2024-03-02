@@ -27,6 +27,10 @@ class XubeSubscription<T> {
   void addData(dynamic data) {
     _log.info('Adding data: $data to XubeSubscription $id');
 
+    if (data is! List<Map<String, dynamic>>) {
+      data = List<Map<String, dynamic>>.from(data);
+    }
+
     T convertedData = convertData(data);
     _controller.add(convertedData);
   }
@@ -260,6 +264,12 @@ class SubscriptionManager {
     dynamic data,
   }) {
     final id = _formatId(path: path);
+    XubeSubscription? subscription = _subscriptions[id];
+
+    if (subscription == null) {
+      _log.info('No subscription found for $id');
+      return;
+    }
 
     _subscriptions[id]?.addData(data);
   }
@@ -342,17 +352,8 @@ class SubscriptionManager {
         return null;
       }
 
-      List<Map<String, dynamic>> data;
-
-      if (response.data is Map<String, dynamic>) {
-        data = [response.data];
-      } else if (response.data is List<Map<String, dynamic>>) {
-        data = response.data;
-      } else {
-        data = List<Map<String, dynamic>>.from(response.data);
-      }
-
-      subscription._controller.add(convertData(data));
+      // subscription._controller.add(convertData(data));
+      subscription.addData(response.data);
     } catch (e) {
       _log.error('Could not subscribe to $id', error: e);
     }
