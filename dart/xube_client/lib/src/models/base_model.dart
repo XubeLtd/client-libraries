@@ -16,17 +16,17 @@ class BaseModel {
     required this.id,
   });
 
-  static BaseModel? fromJson(Map<String, dynamic> json) {
+  static BaseModel fromJson(Map<String, dynamic> json) {
     String version = json[versionField];
-    String? id = json[idField];
+    String id = json[idField];
 
-    if (id == null) {
-      XubeLog.getInstance().error('json did not contain an id');
-    }
+    // if (id == null) {
+    //   XubeLog.getInstance().error('json did not contain an id');
+    // }
 
     return BaseModel(
       version: version,
-      id: id!,
+      id: id,
     );
   }
 }

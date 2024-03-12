@@ -338,10 +338,15 @@ class SubscriptionManager {
     }
     Dio _dio = GetIt.I<Dio>();
 
+    Dio dio = new Dio();
+
+    dio.interceptors.add(_dio.interceptors.first);
+    dio.interceptors.add(_dio.interceptors.last);
+
     try {
-      Response response = await _dio.post(
-        path,
-      );
+      String fullPath = "${_dio.options.baseUrl}$path";
+      _log.info("Making request to: $fullPath");
+      Response response = await dio.post(fullPath);
 
       if ((response.statusCode ?? HttpStatus.internalServerError) >=
           HttpStatus.multipleChoices) {
@@ -355,6 +360,7 @@ class SubscriptionManager {
       // subscription._controller.add(convertData(data));
       subscription.addData(response.data);
     } catch (e) {
+      _log.info(jsonEncode(dio));
       _log.error('Could not subscribe to $id', error: e);
     }
   }
@@ -365,28 +371,32 @@ class SubscriptionManager {
     final id = _formatId(path: path);
 
     Dio _dio = GetIt.I<Dio>();
-    Response response = await _dio.delete(path);
 
-    int? statusCode = response.statusCode;
+    try {
+      Response response = await _dio.delete(path);
 
-    _subscriptions[id]?.close();
-    _subscriptions.remove(id);
+      int? statusCode = response.statusCode;
 
-    if (statusCode == null) {
-      _log.error(
-        'No status code received when unsubscribing from $path',
-        error: response,
-      );
-      _log.warning('Unsubscription may have only been partially successful');
-      return;
+      _subscriptions[id]?.close();
+      _subscriptions.remove(id);
+
+      if (statusCode == null) {
+        _log.error(
+          'No status code received when unsubscribing from $path',
+          error: response,
+        );
+        _log.warning('Unsubscription may have only been partially successful');
+        return;
+      }
+
+      if (statusCode >= HttpStatus.multipleChoices) {
+        _log.warning('Server could not complete unsubscription from $id',
+            error: response);
+        return;
+      }
+      _log.info('Subscription Manager - unsubscribed from $id');
+    } catch (e) {
+      _log.error('Could not unsubscribe from $id', error: e);
     }
-
-    if (statusCode >= HttpStatus.multipleChoices) {
-      _log.warning('Server could not complete unsubscription from $id',
-          error: response);
-      return;
-    }
-
-    _log.info('Subscription Manager - unsubscribed from $id');
   }
 }

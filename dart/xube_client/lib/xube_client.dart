@@ -1,6 +1,7 @@
 export 'src/xube_client.dart';
 export 'src/utils/submit.dart';
 export 'src/models/account.dart';
+export 'src/models/account_device.dart';
 export 'src/models/account_user.dart';
 export 'src/models/location.dart';
 export 'src/models/component.dart';

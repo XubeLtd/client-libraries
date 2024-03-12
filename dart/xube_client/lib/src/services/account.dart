@@ -24,13 +24,13 @@ class XubeClientAccount extends BaseClient {
     return 'accounts/$accountId';
   }
 
-  Future<Stream<Account?>?> getAccountStream(String accountId) async {
+  Stream<Account>? getAccountStream(String accountId) {
     _log.info('Getting user accounts stream for email: $accountId');
 
     String subscriptionPath = getXubeAccountPath(accountId);
     _log.info('Subscription path: $subscriptionPath');
 
-    return getStream<Account?>(subscriptionPath, Account.fromJson);
+    return getStream(subscriptionPath, Account.fromJson);
   }
 
   Future<void> addUserToAccount(

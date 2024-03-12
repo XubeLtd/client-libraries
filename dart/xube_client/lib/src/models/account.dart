@@ -12,14 +12,14 @@ class Account extends BaseModel {
     required super.id,
   });
 
-  static Account? fromJson(dynamic json) {
-    String? name = json[nameField];
-    BaseModel? model = BaseModel.fromJson(json);
+  static Account fromJson(dynamic json) {
+    String name = json[nameField];
+    BaseModel model = BaseModel.fromJson(json);
 
-    if (name == null || model == null) {
-      XubeLog.getInstance().error('Account.fromJson: Invalid data');
-      return null;
-    }
+    // if (name == null || model == null) {
+    //   XubeLog.getInstance().error('Account.fromJson: Invalid data');
+    //   return null;
+    // }
 
     return Account(
       name: name,
