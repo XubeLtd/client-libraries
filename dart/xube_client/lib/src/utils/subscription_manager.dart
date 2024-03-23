@@ -11,11 +11,11 @@ import 'package:xube_client/src/models/subscription_data/subscription_data.dart'
 import 'package:xube_client/src/utils/xube_log.dart';
 import 'package:xube_client/src/xube_client.dart';
 
-class XubeSubscription<T> {
+class XubeSubscription<T, U> {
   final String id;
   final XubeLog _log;
   final _controller = BehaviorSubject<T>();
-  final T Function(List<Map<String, dynamic>> data) convertData;
+  final T Function(U data) convertData;
 
   XubeSubscription({
     required this.id,
@@ -27,8 +27,13 @@ class XubeSubscription<T> {
   void addData(dynamic data) {
     _log.info('Adding data: $data to XubeSubscription $id');
 
-    if (data is! List<Map<String, dynamic>>) {
+    if (data is List) {
       data = List<Map<String, dynamic>>.from(data);
+    } else if (data is Map) {
+      data = Map<String, dynamic>.from(data);
+    } else {
+      _log.error('Data is not a list or map. Ignoring');
+      return;
     }
 
     T convertedData = convertData(data);
@@ -240,7 +245,10 @@ class SubscriptionManager {
   String _formatId({
     required String path,
   }) {
-    return path;
+    if (!path.startsWith('/')) {
+      path = '/$path';
+    }
+    return path.toLowerCase();
   }
 
   Stream<T>? findStreamById<T>({required String path}) {
@@ -274,15 +282,15 @@ class SubscriptionManager {
     _subscriptions[id]?.addData(data);
   }
 
-  XubeSubscription<T> saveSubscription<T>({
+  XubeSubscription<T, U> saveSubscription<T, U>({
     required String path,
-    required T Function(List<Map<String, dynamic>> data) convertData,
+    required T Function(U data) convertData,
   }) {
     final id = _formatId(path: path);
 
     _log.info('Adding new XubeSubscription $id to the Subscription Manager');
 
-    final newSubscription = XubeSubscription<T>(
+    final newSubscription = XubeSubscription<T, U>(
       id: id,
       convertData: convertData,
     );
@@ -292,13 +300,13 @@ class SubscriptionManager {
     return newSubscription;
   }
 
-  Stream<T> subscribe<T>({
+  Stream<T> subscribe<T, U>({
     required String path,
-    required T Function(List<Map<String, dynamic>> data) convertData,
+    required T Function(U data) convertData,
   }) {
     _log.info('Subscription Manager - subscribing to path: $path');
 
-    XubeSubscription<T> subscription = saveSubscription<T>(
+    XubeSubscription<T, U> subscription = saveSubscription<T, U>(
       path: path,
       convertData: convertData,
     );
@@ -309,7 +317,7 @@ class SubscriptionManager {
       subscribeStateStreamSubscription = subscriptionStateSubject.listen(
         (event) {
           if (event == SubscriptionState.ready) {
-            _handleManagerStateReadyToSubscribe<T>(
+            _handleManagerStateReadyToSubscribe<T, U>(
               path,
               subscription,
               convertData,
@@ -325,10 +333,10 @@ class SubscriptionManager {
     return subscription._controller.stream;
   }
 
-  _handleManagerStateReadyToSubscribe<T>(
+  _handleManagerStateReadyToSubscribe<T, U>(
     String path,
     XubeSubscription subscription,
-    T Function(List<Map<String, dynamic>> data) convertData,
+    T Function(U data) convertData,
   ) async {
     final id = _formatId(path: path);
 
@@ -338,15 +346,19 @@ class SubscriptionManager {
     }
     Dio _dio = GetIt.I<Dio>();
 
-    Dio dio = new Dio();
+    // Dio dio = new Dio();
 
-    dio.interceptors.add(_dio.interceptors.first);
-    dio.interceptors.add(_dio.interceptors.last);
+    // dio.interceptors.add(_dio.interceptors.first);
+    // dio.interceptors.add(_dio.interceptors.last);
 
     try {
-      String fullPath = "${_dio.options.baseUrl}$path";
-      _log.info("Making request to: $fullPath");
-      Response response = await dio.post(fullPath);
+      // if(path.startsWith('/')){
+      //   path = path.substring(1);
+      // }
+
+      // String fullPath = "${_dio.options.baseUrl}$path";
+      _log.info("Making request to: $path");
+      Response response = await _dio.post(path);
 
       if ((response.statusCode ?? HttpStatus.internalServerError) >=
           HttpStatus.multipleChoices) {
@@ -357,10 +369,9 @@ class SubscriptionManager {
         return null;
       }
 
-      // subscription._controller.add(convertData(data));
       subscription.addData(response.data);
     } catch (e) {
-      _log.info(jsonEncode(dio));
+      _log.info(jsonEncode(_dio));
       _log.error('Could not subscribe to $id', error: e);
     }
   }

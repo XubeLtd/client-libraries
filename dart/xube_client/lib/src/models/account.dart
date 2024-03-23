@@ -12,7 +12,7 @@ class Account extends BaseModel {
     required super.id,
   });
 
-  static Account fromJson(dynamic json) {
+  static Account fromJson(Map<String, dynamic> json) {
     String name = json[nameField];
     BaseModel model = BaseModel.fromJson(json);
 

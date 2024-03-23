@@ -17,12 +17,8 @@ class BaseModel {
   });
 
   static BaseModel fromJson(Map<String, dynamic> json) {
-    String version = json[versionField];
-    String id = json[idField];
-
-    // if (id == null) {
-    //   XubeLog.getInstance().error('json did not contain an id');
-    // }
+    String version = json[versionField] ?? '1';
+    String id = json[idField] ?? '';
 
     return BaseModel(
       version: version,

@@ -18,9 +18,9 @@ abstract class BaseClient {
         _log = XubeLog.getInstance();
 
   @protected
-  Stream<T> getStream<T>(
+  Stream<T> getStream<T, U>(
     String path,
-    T Function(List<Map<String, dynamic>> data) convertData,
+    T Function(U data) convertData,
   ) {
     Stream<T>? stream = _subscriptionManager.findStreamById<T>(path: path);
     if (stream != null) {
@@ -30,7 +30,7 @@ abstract class BaseClient {
 
     _log.info('Did not find stream for path $path. Subscribing...');
 
-    return _subscriptionManager.subscribe<T>(
+    return _subscriptionManager.subscribe<T, U>(
       path: path,
       convertData: convertData,
     );

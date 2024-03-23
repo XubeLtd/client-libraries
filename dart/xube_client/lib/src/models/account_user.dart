@@ -38,7 +38,7 @@ class AccountUsers {
 
   AccountUsers({required this.accountUsers});
 
-  static AccountUsers fromJson(dynamic json) {
+  static AccountUsers fromJson(List<Map<String, dynamic>> json) {
     List<AccountUser> accountUsers = [];
 
     if (json is! List) {

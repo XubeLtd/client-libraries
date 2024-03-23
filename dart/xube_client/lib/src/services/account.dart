@@ -21,7 +21,7 @@ class XubeClientAccount extends BaseClient {
   }
 
   String getXubeAccountPath(String accountId) {
-    return 'accounts/$accountId';
+    return '/accounts/$accountId/subscribe';
   }
 
   Stream<Account>? getAccountStream(String accountId) {
