@@ -1,23 +1,11 @@
 library xube_client;
 
-// Dart Packages
-
-import 'dart:convert';
-import 'dart:developer';
-
 // 3rd-Party Packages
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:xube_client/src/services/account/account_service.dart';
 import 'package:xube_client/src/services/account_devices.dart';
-import 'package:xube_client/src/services/code.dart';
-import 'package:xube_client/src/services/codes.dart';
-import 'package:xube_client/src/services/component_data_endpoint.dart';
-import 'package:xube_client/src/services/components.dart';
-import 'package:xube_client/src/services/devices.dart';
-import 'package:xube_client/src/services/account_components.dart';
-import 'package:xube_client/src/services/group.dart';
-import 'package:xube_client/src/services/groups.dart';
-import 'package:xube_client/src/services/product.dart';
-import 'package:xube_client/src/services/products.dart';
+import 'package:xube_client/src/services/device/device_service.dart';
 
 // Utilities
 import 'package:xube_client/src/utils/subscription_manager.dart';
@@ -25,156 +13,69 @@ import 'package:xube_client/src/utils/subscription_manager.dart';
 // Services
 import 'package:xube_client/src/services/auth.dart';
 import 'package:xube_client/src/services/account.dart';
-import 'package:xube_client/src/services/accounts.dart';
-import 'package:xube_client/src/services/component.dart';
-import 'package:xube_client/src/services/device.dart';
-import 'package:xube_client/src/services/project.dart';
-import 'package:xube_client/src/services/projects.dart';
+import 'package:xube_client/src/services/user-accounts.dart';
+import 'package:xube_client/src/utils/xube_log.dart';
 export 'package:xube_client/src/services/auth.dart';
 
 class XubeClient {
-  late final WebSocketChannel _channel;
   late final XubeClientAuth _auth;
-  late final XubeClientAccounts _accounts;
-  late final XubeClientAccount _account;
-  late final XubeClientProducts _products;
-  late final XubeClientProduct _product;
-  late final XubeClientProjects _projects;
-  late final XubeClientProject _project;
-  late final XubeClientDevice _device;
-  late final XubeClientDevices _devices;
-  late final XubeClientComponent _component;
-  late final XubeClientDeviceComponents _deviceComponents;
-  late final XubeClientAccountComponents _accountComponents;
-  late final XubeClientCodes _codes;
-  late final XubeClientCode _code;
-  late final XubeClientComponentDataEndpoint _componentDataEndpoint;
-  late final XubeClientAccountDevices _accountDevices;
-  late final XubeClientGroups _groups;
-  late final XubeClientGroup _group;
+  late final XubeAccountService _accountService;
+  late final XubeDeviceService _deviceService;
 
   XubeClientAuth get auth => _auth;
-  XubeClientAccounts get accounts => _accounts;
-  XubeClientProducts get products => _products;
-  XubeClientProduct get product => _product;
-  XubeClientAccount get account => _account;
-  XubeClientProjects get projects => _projects;
-  XubeClientProject get project => _project;
-  XubeClientDevice get device => _device;
-  XubeClientDevices get devices => _devices;
-  XubeClientComponent get component => _component;
-  XubeClientDeviceComponents get deviceComponents => _deviceComponents;
-  XubeClientAccountComponents get accountComponents => _accountComponents;
-  XubeClientCodes get codes => _codes;
-  XubeClientCode get code => _code;
-  XubeClientComponentDataEndpoint get componentDataEndpoint =>
-      _componentDataEndpoint;
-  XubeClientAccountDevices get accountDevices => _accountDevices;
-  XubeClientGroups get groups => _groups;
-  XubeClientGroup get group => _group;
+  XubeAccountService get account => _accountService;
+  XubeDeviceService get device => _deviceService;
 
   XubeClient({
-    WebSocketChannel? channel,
+    required String baseApiUrl,
+    required String baseSocketUrl,
     XubeClientAuth? auth,
-    XubeClientAccounts? accounts,
-    XubeClientProducts? products,
-    XubeClientProduct? product,
-    XubeClientAccount? account,
-    XubeClientProjects? projects,
-    XubeClientProject? project,
-    XubeClientDevice? device,
-    XubeClientDevices? devices,
-    XubeClientComponent? component,
-    XubeClientDeviceComponents? deviceComponents,
-    XubeClientAccountComponents? accountComponents,
-    XubeClientCodes? codes,
-    XubeClientCode? code,
-    XubeClientComponentDataEndpoint? componentDataEndpoint,
-    XubeClientAccountDevices? accountDevices,
-    XubeClientGroups? groups,
-    XubeClientGroup? group,
+    XubeDeviceService? device,
+    XubeAccountService? account,
+    XubeLog? log,
   }) {
-    log('Init Xube Client');
+    log ??= XubeLog.getInstance();
+    log.initialize(
+        applicationVersion: '0.0.1',
+        platformDiagnosticsUrl: '/diagnostics',
+        minimumPrintLevel: 0,
+        minimumSendDiagnosticsLevel: XubeLogLevel.error);
+    log.info('Initializing Xube Client');
 
-    _auth = auth ?? XubeClientAuth();
-
-    _auth.authStream.listen((event) {
-      log('debug ${event.token}');
-      if (event.token == null) return;
-
-      _initSocket(channel, event.token!);
-
-      _accounts =
-          accounts ?? XubeClientAccounts(channel: _channel, auth: _auth);
-      _account = account ?? XubeClientAccount(channel: _channel, auth: _auth);
-      _products =
-          products ?? XubeClientProducts(channel: _channel, auth: _auth);
-      _product = product ?? XubeClientProduct(channel: _channel, auth: _auth);
-      _projects =
-          projects ?? XubeClientProjects(channel: _channel, auth: _auth);
-      _project = project ?? XubeClientProject(channel: _channel, auth: _auth);
-      _device = device ?? XubeClientDevice(channel: _channel, auth: _auth);
-      _devices = devices ?? XubeClientDevices(channel: _channel, auth: _auth);
-      _component =
-          component ?? XubeClientComponent(channel: _channel, auth: _auth);
-      _deviceComponents = deviceComponents ??
-          XubeClientDeviceComponents(channel: _channel, auth: _auth);
-      _accountComponents = accountComponents ??
-          XubeClientAccountComponents(channel: _channel, auth: _auth);
-      _codes = codes ?? XubeClientCodes(channel: _channel, auth: _auth);
-      _code = code ?? XubeClientCode(channel: _channel, auth: _auth);
-      _componentDataEndpoint = componentDataEndpoint ??
-          XubeClientComponentDataEndpoint(channel: _channel, auth: _auth);
-      _accountDevices = accountDevices ??
-          XubeClientAccountDevices(channel: _channel, auth: _auth);
-      _groups = groups ?? XubeClientGroups(channel: _channel, auth: _auth);
-      _group = group ?? XubeClientGroup(channel: _channel, auth: _auth);
-    });
-  }
-
-  _initSocket(WebSocketChannel? channel, String authToken) {
-    log('initSocket $authToken');
-
-    _channel = channel ??
-        WebSocketChannel.connect(
-          Uri.parse('wss://dev.socket.xube.io/subscriptions?token=$authToken'),
-        );
-
-    _channel.stream.listen((event) {
-      final data = jsonDecode(event);
-
-      if (data == null) return;
-
-      final subscription = data['subscription'];
-
-      if (subscription == null) return;
-
-      JsonEncoder encoder = const JsonEncoder.withIndent('  ');
-      String prettyprint = encoder.convert(data);
-      log(prettyprint);
-
-      SubscriptionManager.instance.feed(
-        format: subscription['format'],
-        contextKey: subscription['contextKey'],
-        typeKey: subscription['typeKey'],
-        typeId: subscription['typeId'],
-        contextId: subscription['contextId'] ?? '',
-        data: data,
+    final getIt = GetIt.I;
+    if (!getIt.isRegistered<XubeClientAuth>()) {
+      getIt.registerLazySingleton<XubeClientAuth>(
+        () => _auth = XubeClientAuth(),
       );
-    });
-  }
+    }
 
-  Stream? findStreamById({
-    required String format,
-    required String contextKey,
-    required String typeKey,
-    required String typeId,
-  }) {
-    return SubscriptionManager.instance.findStreamById(
-      format: format,
-      contextKey: contextKey,
-      typeKey: typeKey,
-      typeId: typeId,
-    );
+    if (!getIt.isRegistered<Dio>()) {
+      getIt.registerLazySingleton<Dio>(
+        () => Dio(
+          BaseOptions(
+              baseUrl: baseApiUrl,
+              contentType: 'application/json',
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods':
+                    'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Credentials': 'true',
+              }),
+        ),
+      );
+    }
+    if (!getIt.isRegistered<SubscriptionManager>()) {
+      getIt.registerLazySingleton<SubscriptionManager>(
+        () => SubscriptionManager(
+          baseApiUrl,
+          baseSocketUrl,
+          log,
+        ),
+      );
+    }
+
+    _accountService = account ?? XubeAccountService();
+    _deviceService = device ?? XubeDeviceService();
   }
 }

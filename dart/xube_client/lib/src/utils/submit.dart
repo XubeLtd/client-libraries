@@ -1,61 +1,71 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:xube_client/src/models/result.dart';
+import 'package:xube_client/src/utils/xube_log.dart';
+import 'package:xube_client/src/xube_client.dart';
 
 Future<dynamic> submit({
   required Map<String, dynamic> data,
-  required String url,
-  String? authToken,
+  required String path,
   String method = 'post',
+  bool requiresAuthentication = true,
+  XubeLog? log,
 }) async {
   dynamic resultData;
   bool hasError = false;
   String message = '';
   String title = 'Oops, something went wrong!';
 
-  final tempUrl = 'https://dev.api.xube.io$url';
+  Dio dio = GetIt.I<Dio>();
+  log ??= XubeLog.getInstance();
 
   try {
     Response<dynamic>? response;
 
-    final options = authToken != null
-        ? Options(
-            headers: {
-              'Authorization': authToken,
-            },
-          )
-        : null;
+    //Consider = Future: Create a buffer of requests that get sent out when authentication is confirmed
+    String? authToken = GetIt.I<XubeClientAuth>().token;
 
-    final encodedData = json.encode(data);
+    if (authToken == null && requiresAuthentication) {
+      log.warning('User is not authenticated.');
+      return false;
+    }
+
+    Options options = Options(
+      headers: requiresAuthentication
+          ? {
+              'Authorization': authToken,
+            }
+          : null,
+    );
 
     switch (method.toLowerCase()) {
       case 'get':
-        response = await Dio().get(
-          tempUrl,
+        response = await dio.get(
+          path,
           options: options,
           queryParameters: data,
         );
         break;
       case 'post':
-        response = await Dio().post(
-          tempUrl,
+        response = await dio.post(
+          path,
           options: options,
-          data: encodedData,
+          data: json.encode(data),
         );
         break;
       case 'put':
-        response = await Dio().put(
-          tempUrl,
+        response = await dio.put(
+          path,
           options: options,
-          data: encodedData,
+          data: json.encode(data),
         );
         break;
       case 'patch':
-        response = await Dio().patch(
-          tempUrl,
+        response = await dio.patch(
+          path,
           options: options,
-          data: encodedData,
+          data: json.encode(data),
         );
         break;
     }
@@ -76,11 +86,11 @@ Future<dynamic> submit({
     hasError = true;
     message = '$e';
 
-    if (e is DioError) {
-      message = e.message;
-    }
+    // if (e is DioException) {
+    // message = e.message ?? 'An error occurred';
+    // }
 
-    log(e.toString());
+    log.error('Error occurred during submit. ${e.toString()}');
   }
 
   return Result(

@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:xube_client/src/utils/parse_util.dart';
 
 import 'component_status_entry.dart';
 import 'status_option.dart';

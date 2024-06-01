@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:xube_client/src/models/device_status/component_status_entry.dart';
-import 'package:xube_client/src/models/device_status/status_option.dart';
 
 part 'group_tracked_status.freezed.dart';
 part 'group_tracked_status.g.dart';

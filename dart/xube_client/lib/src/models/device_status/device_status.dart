@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:xube_client/src/models/device_status/device_status_power.dart';
-import 'package:xube_client/src/utils/parse_util.dart';
 
 import 'device_status_connectivity.dart';
 import 'device_status_status.dart';
