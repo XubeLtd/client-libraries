@@ -14,7 +14,7 @@ import 'package:xube_client/src/xube_client.dart';
 class XubeSubscription<T, U> {
   final String id;
   final XubeLog _log;
-  final _controller = BehaviorSubject<T>();
+  final _subscriptionSubject = BehaviorSubject<T>();
   final T Function(U data) convertData;
 
   XubeSubscription({
@@ -22,7 +22,7 @@ class XubeSubscription<T, U> {
     required this.convertData,
   }) : _log = XubeLog.getInstance();
 
-  Stream get stream => _controller.stream;
+  Stream get stream => _subscriptionSubject.stream;
 
   void addData(dynamic data) {
     _log.info('Adding data: $data to XubeSubscription $id');
@@ -37,12 +37,12 @@ class XubeSubscription<T, U> {
     }
 
     T convertedData = convertData(data);
-    _controller.add(convertedData);
+    _subscriptionSubject.add(convertedData);
   }
 
   void close() {
     _log.info('Closing XubeSubscription $id');
-    _controller.close();
+    _subscriptionSubject.close();
   }
 }
 
@@ -56,6 +56,9 @@ class SubscriptionManager {
   String? _connectionId;
 
   late final Map<String, XubeSubscription> _subscriptions;
+  Timer? refreshConnectionTimer;
+
+  int consecutiveErrorCount = 0;
 
   BehaviorSubject subscriptionStateSubject =
       BehaviorSubject<SubscriptionState>.seeded(
@@ -85,6 +88,13 @@ class SubscriptionManager {
       }
 
       _initSocket();
+    });
+  }
+
+  _startReconnectCountdown() async {
+    refreshConnectionTimer ??=
+        Timer.periodic(new Duration(minutes: 15), (timer) {
+      _refreshSocketConnection();
     });
   }
 
@@ -126,6 +136,7 @@ class SubscriptionManager {
       triggerSocketConnectionIdResponse();
 
       subscriptionStateSubject.sink.add(SubscriptionState.pending);
+      _startReconnectCountdown();
     } catch (e) {
       _log.error('Could not connect to socket', error: e);
       teardown();
@@ -152,10 +163,31 @@ class SubscriptionManager {
     ));
   }
 
-  void handleSocketDone() {
+  void handleSocketDone() async {
     _log.info('Socket closed. Attempting to reconnect.');
+    await _refreshSocketConnection();
+  }
+
+  void handleSocketError() async {
+    _log.info('Socket closed. Attempting to reconnect.');
+    ++consecutiveErrorCount;
+
+    if (consecutiveErrorCount > 5) {
+      _log.info("Too many consecutive errors have occurred.");
+      return teardown();
+    }
+    await _refreshSocketConnection();
+  }
+
+  Future<void> _refreshSocketConnection() async {
+    _log.info('Refreshing socket connection');
+
     subscriptionStateSubject.add(SubscriptionState.uninitialized);
-    _initSocket();
+
+    await _socket?.close();
+    _socket = null;
+
+    await _initSocket();
   }
 
   void handleSocketEvent(event) async {
@@ -217,7 +249,7 @@ class SubscriptionManager {
           'No status code received when refreshing connection id',
           error: response,
         );
-      } else if (statusCode >= HttpStatus.internalServerError) {
+      } else if (statusCode >= 300) {
         _log.error(
           'Could not refresh connection id',
           error: response,
@@ -230,6 +262,9 @@ class SubscriptionManager {
 
   void teardown() async {
     _log.info('Tearing down subscription manager');
+
+    // refreshConnectionTimer?.cancel();
+    // refreshConnectionTimer = null;
 
     subscriptionStateSubject.add(SubscriptionState.closed);
 
@@ -330,7 +365,7 @@ class SubscriptionManager {
       _log.error('Could not subscribe to path: $path. Error: $e');
     }
 
-    return subscription._controller.stream;
+    return subscription._subscriptionSubject.stream;
   }
 
   _handleManagerStateReadyToSubscribe<T, U>(
@@ -372,6 +407,17 @@ class SubscriptionManager {
       subscription.addData(response.data);
     } catch (e) {
       _log.info(jsonEncode(_dio));
+
+      // if (e is DioException) {
+      //   if (e.response?.statusCode == 404) {
+      //     _log.info(
+      //       'Resource could not be found. This could be perfectly normal.',
+      //     );
+
+      //     // subscription.setResourceSubscriptionState(ResourceSubscriptionState.NotFound) //Future work
+      //     return;
+      //   }
+      // }
       _log.error('Could not subscribe to $id', error: e);
     }
   }

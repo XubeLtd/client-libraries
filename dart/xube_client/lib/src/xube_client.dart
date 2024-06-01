@@ -3,7 +3,9 @@ library xube_client;
 // 3rd-Party Packages
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:xube_client/src/services/account/account_service.dart';
 import 'package:xube_client/src/services/account_devices.dart';
+import 'package:xube_client/src/services/device/device_service.dart';
 
 // Utilities
 import 'package:xube_client/src/utils/subscription_manager.dart';
@@ -17,22 +19,19 @@ export 'package:xube_client/src/services/auth.dart';
 
 class XubeClient {
   late final XubeClientAuth _auth;
-  late final XubeClientAccount _account;
-  late final XubeClientAccountDevices _accountDevices;
-  late final XubeClientUserAccounts _userAccounts;
+  late final XubeAccountService _accountService;
+  late final XubeDeviceService _deviceService;
 
   XubeClientAuth get auth => _auth;
-  XubeClientAccount get account => _account;
-  XubeClientAccountDevices get accountDevices => _accountDevices;
-  XubeClientUserAccounts get userAccounts => _userAccounts;
+  XubeAccountService get account => _accountService;
+  XubeDeviceService get device => _deviceService;
 
   XubeClient({
     required String baseApiUrl,
     required String baseSocketUrl,
     XubeClientAuth? auth,
-    XubeClientAccountDevices? accountDevices,
-    XubeClientAccount? account,
-    XubeClientUserAccounts? userAccounts,
+    XubeDeviceService? device,
+    XubeAccountService? account,
     XubeLog? log,
   }) {
     log ??= XubeLog.getInstance();
@@ -76,8 +75,7 @@ class XubeClient {
       );
     }
 
-    _account = account ?? XubeClientAccount();
-    _accountDevices = accountDevices ?? XubeClientAccountDevices();
-    _userAccounts = userAccounts ?? XubeClientUserAccounts();
+    _accountService = account ?? XubeAccountService();
+    _deviceService = device ?? XubeDeviceService();
   }
 }

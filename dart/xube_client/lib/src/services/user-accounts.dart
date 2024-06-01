@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:get_it/get_it.dart';
-import 'package:xube_client/src/models/account_user.dart';
+import 'package:xube_client/src/services/account/models/account_user.dart';
 import 'package:xube_client/src/services/base_client.dart';
 import 'package:xube_client/src/utils/path.dart';
 import 'package:xube_client/src/utils/submit.dart';
