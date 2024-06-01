@@ -1,0 +1,253 @@
+{
+    "action": "INSERT",
+    "items": [
+        {
+            "links": [
+                {
+                    "creator": "me@xube.io",
+                    "role": "parent",
+                    "id": "GROUP_f30dce87-10d1-476f-8910-25c497bab520",
+                    "created": "2023-02-28T22:38:24.315Z"
+                },
+                {
+                    "creator": "me@xube.io",
+                    "role": "parent",
+                    "id": "GROUP_44178b65-ab9b-4a56-b154-1753e79db68b",
+                    "created": "2023-02-28T22:40:46.985Z"
+                },
+                {
+                    "creator": "me@xube.io",
+                    "role": "parent",
+                    "id": "GROUP_64fa14ce-a677-498f-9df9-dbf467e046a7",
+                    "created": "2023-03-01T07:27:01.530Z"
+                }
+            ],
+            "updater": "me@xube.io",
+            "updates": [
+                {
+                    "updated": "2023-02-28T22:38:24.315Z",
+                    "updater": "me@xube.io"
+                },
+                {
+                    "updated": "2023-02-28T22:40:46.985Z",
+                    "updater": "me@xube.io"
+                },
+                {
+                    "updated": "2023-03-01T07:27:01.530Z",
+                    "updater": "me@xube.io"
+                }
+            ],
+            "SK_GSI1": "LATEST",
+            "currentConfig": {
+                "schema": {},
+                "config": {},
+                "connections": {}
+            },
+            "generation": "2",
+            "SK_GSI2": "2#DEMO#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+            "name": "XUBE ORIGINAL",
+            "state": "draft",
+            "files": {},
+            "v": "1",
+            "SK": "COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f#1",
+            "id": "DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+            "batch": "0000000001",
+            "model": "ORIGINAL",
+            "version": "1",
+            "creator": "me@xube.io",
+            "manufactured": "2023-01-22T13:47:00Z",
+            "config": {
+                "schema": {},
+                "config": {},
+                "connections": {}
+            },
+            "created": "2023-02-28T22:31:12.664Z",
+            "deviceModel": "DEVICE-MODEL_91b3034d-8587-47f5-8fcc-07eb8396fb63",
+            "v_Component": "1",
+            "base": {
+                "configuredVersion": "0.1.6",
+                "componentID": "DEVICE-MODEL_91b3034d-8587-47f5-8fcc-07eb8396fb63",
+                "originalVersion": "0.1.6"
+            },
+            "make": "XUBE",
+            "capabilities": {},
+            "updated": "2023-03-01T07:27:01.530Z",
+            "PK_GSI2": "DEVICE#XUBE#ORIGINAL",
+            "manufacturer": "XUBE",
+            "orderState": "Built",
+            "account": "DEMO",
+            "PK": "ACCOUNT#DEMO",
+            "PK_GSI1": "COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+            "exposure": "private",
+            "type": "DEVICE"
+        },
+        {
+            "links": [
+                {
+                    "creator": "me@xube.io",
+                    "role": "parent",
+                    "id": "GROUP_f30dce87-10d1-476f-8910-25c497bab520",
+                    "created": "2023-02-28T22:38:24.315Z"
+                },
+                {
+                    "creator": "me@xube.io",
+                    "role": "parent",
+                    "id": "GROUP_44178b65-ab9b-4a56-b154-1753e79db68b",
+                    "created": "2023-02-28T22:40:46.985Z"
+                },
+                {
+                    "creator": "me@xube.io",
+                    "role": "parent",
+                    "id": "GROUP_64fa14ce-a677-498f-9df9-dbf467e046a7",
+                    "created": "2023-03-01T07:27:01.530Z"
+                }
+            ],
+            "updater": "me@xube.io",
+            "updates": [
+                {
+                    "updated": "2023-02-28T22:38:24.315Z",
+                    "updater": "me@xube.io"
+                },
+                {
+                    "updated": "2023-02-28T22:40:46.985Z",
+                    "updater": "me@xube.io"
+                },
+                {
+                    "updated": "2023-03-01T07:27:01.530Z",
+                    "updater": "me@xube.io"
+                }
+            ],
+            "SK_GSI1": "DRAFT",
+            "currentConfig": {
+                "schema": {},
+                "config": {},
+                "connections": {}
+            },
+            "generation": "2",
+            "SK_GSI2": "2#DEMO#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+            "status": {
+                "connectivity": {},
+                "power": {
+                    "battery": {
+                        "chargingState": {
+                            "property": "charging state",
+                            "value": "charging",
+                            "state": "Healthy"
+                        },
+                        "charge": {
+                            "property": "charge",
+                            "value": "68",
+                            "state": "Healthy"
+                        }
+                    },
+                    "usb": {
+                        "connection": {
+                            "name": "connection",
+                            "property": "connection",
+                            "state": "General",
+                            "value": "connected"
+                        }
+                    },
+                    "source": {
+                        "currentSource": {
+                            "property": "current source",
+                            "value": "usb",
+                            "state": "General"
+                        }
+                    }
+                },
+                "status": {
+                    "errors": {
+                        "property": "errors",
+                        "value": "0 errors",
+                        "state": "Error"
+                    },
+                    "warnings": {
+                        "property": "warnings",
+                        "value": "0 warnings",
+                        "state": "Warning"
+                    },
+                    "lastUpdate": {
+                        "property": "last update",
+                        "value": "2023-01-26 18:32:36.619392",
+                        "state": "General"
+                    }
+                }
+            },
+            "name": "XUBE ORIGINAL",
+            "state": "draft",
+            "files": {
+                "current": {
+                    "configs": {},
+                    "scripting": {},
+                    "system": {
+                        "firmware": {
+                            "device": {
+                                "fv": 1,
+                                "p": "app0",
+                                "a": 1,
+                                "e": [
+                                    0
+                                ]
+                            },
+                            "server": {
+                                "sp": "app0",
+                                "sv": "0.0.1"
+                            }
+                        }
+                    },
+                    "storage": {},
+                    "communication": {}
+                }
+            },
+            "v": "1",
+            "SK": "COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f#2",
+            "id": "DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+            "batch": "0000000001",
+            "model": "ORIGINAL",
+            "version": "2",
+            "creator": "me@xube.io",
+            "manufactured": "2023-01-22T13:47:00Z",
+            "config": {
+                "config": {
+                    "v": "5"
+                },
+                "connections": {},
+                "schema": {}
+            },
+            "created": "2023-03-01T15:28:17.429Z",
+            "deviceModel": "DEVICE-MODEL_91b3034d-8587-47f5-8fcc-07eb8396fb63",
+            "v_Component": "1",
+            "base": {
+                "configuredVersion": "0.1.6",
+                "componentID": "DEVICE-MODEL_91b3034d-8587-47f5-8fcc-07eb8396fb63",
+                "originalVersion": "0.1.6"
+            },
+            "make": "XUBE",
+            "capabilities": {},
+            "updated": "2023-03-01T07:27:01.530Z",
+            "PK_GSI2": "DEVICE#XUBE#ORIGINAL",
+            "manufacturer": "XUBE",
+            "orderState": "Built",
+            "account": "DEMO",
+            "PK": "ACCOUNT#DEMO",
+            "PK_GSI1": "COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+            "exposure": "private",
+            "type": "DEVICE"
+        }
+    ],
+    "subscription": {
+        "PK": "SUBSCRIPTION#BX1wbewXDoECF1Q=",
+        "SK": "ACCOUNT#DEMO##COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f#Raw",
+        "PK_GSI1": "ACCOUNT#DEMO",
+        "SK_GSI1": "COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+        "context": "ACCOUNT#DEMO##COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f",
+        "id": "BX1wbewXDoECF1Q=",
+        "email": "me@xube.io",
+        "action": "Subscribe",
+        "format": "Raw",
+        "typeKey": "ACCOUNT",
+        "typeId": "DEMO",
+        "contextKey": "COMPONENT#DEVICE_167c5101-d9fe-4c4c-93ac-2817194e579f"
+    }
+}
