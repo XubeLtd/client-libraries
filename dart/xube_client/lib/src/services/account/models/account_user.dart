@@ -19,7 +19,7 @@ class AccountUser extends BaseModel {
 
     BaseModel? model = BaseModel.fromJson(json);
 
-    if (account == null || email == null || model == null) {
+    if (account == null || email == null) {
       XubeLog.getInstance().error('AccountUser.fromJson: Invalid data. $json');
       return null;
     }
@@ -39,12 +39,14 @@ class AccountUsers {
   AccountUsers({required this.accountUsers});
 
   static AccountUsers fromJson(List<Map<String, dynamic>> json) {
+    final log = XubeLog.getInstance();
+    log.info('AccountUsers.fromJson: $json');
     List<AccountUser> accountUsers = [];
 
-    if (json is! List) {
-      XubeLog.getInstance().error('Account Users JSON is not a list');
-      return AccountUsers(accountUsers: accountUsers);
-    }
+    // if (json is! List) {
+    //   XubeLog.getInstance().error('Account Users JSON is not a list');
+    //   return AccountUsers(accountUsers: accountUsers);
+    // }
 
     for (Map<String, dynamic> accountUserMap in json) {
       AccountUser? accountUser = AccountUser.fromJson(accountUserMap);

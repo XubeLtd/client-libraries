@@ -1,5 +1,6 @@
+import 'dart:developer';
+
 import 'package:xube_client/src/models/base_model.dart';
-import 'package:xube_client/src/utils/xube_log.dart';
 
 const String accountField = "account";
 
@@ -13,7 +14,9 @@ class Account extends BaseModel {
   });
 
   static Account fromJson(Map<String, dynamic> json) {
-    String name = json[nameField];
+    log('Account.fromJson: $json');
+
+    String name = json['accountName'];
     BaseModel model = BaseModel.fromJson(json);
 
     // if (name == null || model == null) {

@@ -1,8 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:xube_client/src/services/base_service.dart';
 import 'package:xube_client/src/utils/path.dart';
-import 'package:xube_client/src/utils/subscription_manager.dart';
-import 'package:xube_client/src/utils/xube_log.dart';
 import 'package:xube_client/xube_client.dart';
 
 class XubeAccountService extends BaseService {
@@ -11,9 +9,9 @@ class XubeAccountService extends BaseService {
   static const String _accountKey = '{account}';
 
   XubeAccountService({
-    SubscriptionManager? subscriptionManager,
-    XubeLog? log,
-  }) : super(subscriptionManager: subscriptionManager, log: log);
+    super.subscriptionManager,
+    super.log,
+  });
 
   //Features
   Future<void> createAccount(String accountName) async {

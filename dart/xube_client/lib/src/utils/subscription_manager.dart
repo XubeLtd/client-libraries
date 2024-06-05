@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/models/subscription_data/subscription_data.dart';
 import 'package:xube_client/src/utils/xube_log.dart';
 import 'package:xube_client/src/xube_client.dart';
@@ -26,10 +26,19 @@ class XubeSubscription<T, U> {
 
   void addData(dynamic data) {
     _log.info('Adding data: $data to XubeSubscription $id');
+    _log.info('Eto ang data $data');
+    _log.info('data is List : ${data is List}');
+    _log.info('data is Map : ${data is Map}');
+    _log.info('data is String : ${data is String}');
+    _log.info('data is bool : ${data is bool}');
 
-    if (data is List) {
+    if (data is bool) {
+      return;
+    } else if (data is List) {
+      _log.info('Data is a list');
       data = List<Map<String, dynamic>>.from(data);
     } else if (data is Map) {
+      _log.info('Data is a map');
       data = Map<String, dynamic>.from(data);
     } else {
       _log.error('Data is not a list or map. Ignoring');
@@ -93,7 +102,7 @@ class SubscriptionManager {
 
   _startReconnectCountdown() async {
     refreshConnectionTimer ??=
-        Timer.periodic(new Duration(minutes: 15), (timer) {
+        Timer.periodic(const Duration(minutes: 15), (timer) {
       _refreshSocketConnection();
     });
   }
@@ -226,6 +235,8 @@ class SubscriptionManager {
     String? oldConnectionId = _connectionId;
     _connectionId = newConnectionId;
 
+    dev.log('Setting connection id to $newConnectionId');
+
     if (oldConnectionId == null) {
       _log.info(
         'No old connection id found when setting connection id. This is likely the first time the connection id is being set. Skipping refresh.',
@@ -346,17 +357,23 @@ class SubscriptionManager {
       convertData: convertData,
     );
 
+    _log.info('Subscription Manager - saveSubscription');
+
     try {
       StreamSubscription? subscribeStateStreamSubscription;
 
       subscribeStateStreamSubscription = subscriptionStateSubject.listen(
         (event) {
+          _log.info('Subscription Manager - state: $event');
           if (event == SubscriptionState.ready) {
+            _log.info('Subscription Manager - state: ready');
             _handleManagerStateReadyToSubscribe<T, U>(
               path,
               subscription,
               convertData,
             );
+            _log.info(
+                'Subscription Manager - _handleManagerStateReadyToSubscribe');
             subscribeStateStreamSubscription?.cancel();
           }
         },
@@ -379,7 +396,7 @@ class SubscriptionManager {
     if (_connectionId == null) {
       _log.error('No connection id found');
     }
-    Dio _dio = GetIt.I<Dio>();
+    Dio dio = GetIt.I<Dio>();
 
     // Dio dio = new Dio();
 
@@ -393,7 +410,7 @@ class SubscriptionManager {
 
       // String fullPath = "${_dio.options.baseUrl}$path";
       _log.info("Making request to: $path");
-      Response response = await _dio.post(path);
+      Response response = await dio.post(path);
 
       if ((response.statusCode ?? HttpStatus.internalServerError) >=
           HttpStatus.multipleChoices) {
@@ -404,9 +421,11 @@ class SubscriptionManager {
         return null;
       }
 
+      _log.info('Subscription Manager - subscribed to $id ${response.data}');
+
       subscription.addData(response.data);
     } catch (e) {
-      _log.info(jsonEncode(_dio));
+      // _log.info(jsonEncode(_dio));
 
       // if (e is DioException) {
       //   if (e.response?.statusCode == 404) {
@@ -427,10 +446,10 @@ class SubscriptionManager {
   }) async {
     final id = _formatId(path: path);
 
-    Dio _dio = GetIt.I<Dio>();
+    Dio dio = GetIt.I<Dio>();
 
     try {
-      Response response = await _dio.delete(path);
+      Response response = await dio.delete(path);
 
       int? statusCode = response.statusCode;
 
