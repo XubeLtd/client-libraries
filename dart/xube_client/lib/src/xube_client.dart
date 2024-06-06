@@ -4,17 +4,13 @@ library xube_client;
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:xube_client/src/services/account/account_service.dart';
-import 'package:xube_client/src/services/account_devices.dart';
-import 'package:xube_client/src/services/device/device_service.dart';
-
-// Utilities
-import 'package:xube_client/src/utils/subscription_manager.dart';
-
 // Services
 import 'package:xube_client/src/services/auth.dart';
-import 'package:xube_client/src/services/account.dart';
-import 'package:xube_client/src/services/user-accounts.dart';
+import 'package:xube_client/src/services/device/device_service.dart';
+// Utilities
+import 'package:xube_client/src/utils/subscription_manager.dart';
 import 'package:xube_client/src/utils/xube_log.dart';
+
 export 'package:xube_client/src/services/auth.dart';
 
 class XubeClient {

@@ -1,4 +1,3 @@
-import 'package:xube_client/src/services/account/models/account.dart';
 import 'package:xube_client/src/models/base_model.dart';
 import 'package:xube_client/src/utils/xube_log.dart';
 
