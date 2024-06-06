@@ -6,7 +6,6 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:xube_client/src/models/subscription_data/subscription_data.dart';
 import 'package:xube_client/src/utils/xube_log.dart';
 import 'package:xube_client/src/xube_client.dart';
@@ -93,7 +92,7 @@ class SubscriptionManager {
 
   _startReconnectCountdown() async {
     refreshConnectionTimer ??=
-        Timer.periodic(new Duration(minutes: 15), (timer) {
+        Timer.periodic(const Duration(minutes: 15), (timer) {
       _refreshSocketConnection();
     });
   }
@@ -379,7 +378,7 @@ class SubscriptionManager {
     if (_connectionId == null) {
       _log.error('No connection id found');
     }
-    Dio _dio = GetIt.I<Dio>();
+    Dio dio = GetIt.I<Dio>();
 
     // Dio dio = new Dio();
 
@@ -393,7 +392,7 @@ class SubscriptionManager {
 
       // String fullPath = "${_dio.options.baseUrl}$path";
       _log.info("Making request to: $path");
-      Response response = await _dio.post(path);
+      Response response = await dio.post(path);
 
       if ((response.statusCode ?? HttpStatus.internalServerError) >=
           HttpStatus.multipleChoices) {
@@ -406,7 +405,7 @@ class SubscriptionManager {
 
       subscription.addData(response.data);
     } catch (e) {
-      _log.info(jsonEncode(_dio));
+      _log.info(jsonEncode(dio));
 
       // if (e is DioException) {
       //   if (e.response?.statusCode == 404) {
@@ -427,10 +426,10 @@ class SubscriptionManager {
   }) async {
     final id = _formatId(path: path);
 
-    Dio _dio = GetIt.I<Dio>();
+    Dio dio = GetIt.I<Dio>();
 
     try {
-      Response response = await _dio.delete(path);
+      Response response = await dio.delete(path);
 
       int? statusCode = response.statusCode;
 

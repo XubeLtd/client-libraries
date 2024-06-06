@@ -1,5 +1,3 @@
-import 'package:xube_client/src/utils/xube_log.dart';
-
 const String versionField = "v";
 const String idField = "id";
 const String nameField = "name";
